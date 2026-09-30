@@ -245,7 +245,9 @@ async def student_roster(
     )
 
     students = []
-    log.warning("roster_debug", extra={"num_rows": len(rows), "subject_labels_size": len(subject_labels)})
+    log.warning(
+        "roster_debug", extra={"num_rows": len(rows), "subject_labels_size": len(subject_labels)}
+    )
     for r in rows:
         # Aggregate display names from the unit_ids for this student's curricula.
         subject_names = set()
@@ -260,7 +262,14 @@ async def student_roster(
         if not subject_names and r["curriculum_names"]:
             subject_names = {n.strip() for n in r["curriculum_names"].split(", ") if n.strip()}
         subject_str = ", ".join(sorted(subject_names)) if subject_names else "Not Assigned"
-        log.warning("roster_student", extra={"name": r["student_name"], "unit_ids_count": len(r["unit_ids"].split(", ")) if r["unit_ids"] else 0, "subject": subject_str})
+        log.warning(
+            "roster_student",
+            extra={
+                "name": r["student_name"],
+                "unit_ids_count": len(r["unit_ids"].split(", ")) if r["unit_ids"] else 0,
+                "subject": subject_str,
+            },
+        )
 
         students.append(
             {

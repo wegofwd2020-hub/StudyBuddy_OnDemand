@@ -32,7 +32,9 @@ async def get_system_versions(request: Request) -> dict:
         "app_build": settings.BUILD_ID,
         "db_schema_version": db_schema_version,
         "content_structure_version": 2,
-        "python_version": settings.PYTHON_VERSION if hasattr(settings, "PYTHON_VERSION") else "unknown",
+        "python_version": settings.PYTHON_VERSION
+        if hasattr(settings, "PYTHON_VERSION")
+        else "unknown",
         "api_environment": settings.ENV,
         "endpoints": {
             "health": "/api/v1/health/deep",

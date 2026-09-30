@@ -1,6 +1,5 @@
 """Version mapping: link GitHub tags to DB schema versions."""
 
-
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
@@ -9,6 +8,7 @@ router = APIRouter(prefix="/versions", tags=["admin"])
 
 class VersionMapping(BaseModel):
     """Maps an app version (git tag) to its DB schema version."""
+
     app_version: str
     db_schema_version: int
     released_at: str
@@ -16,9 +16,7 @@ class VersionMapping(BaseModel):
 
 
 @router.get("/mapping/{app_version}", include_in_schema=True)
-async def get_version_mapping(
-    app_version: str, request: Request
-) -> dict:
+async def get_version_mapping(app_version: str, request: Request) -> dict:
     """
     Get DB schema version for a given app version (git tag).
 

@@ -315,6 +315,7 @@ async def deep_health_check(request: Request) -> dict:
     # ── PgBouncer check (via settings.DATABASE_URL if different) ──────────
     try:
         from asyncpg import connect
+
         # Connect to PgBouncer port if configured
         pgbouncer_url = str(settings.DATABASE_URL).replace(":5432/", ":6432/")
         pgbouncer_conn = await asyncio.wait_for(connect(pgbouncer_url), timeout=2.0)
@@ -328,7 +329,11 @@ async def deep_health_check(request: Request) -> dict:
         async with httpx.AsyncClient(timeout=2.0) as client:
             # Check if web container is responding via localhost (for internal check)
             # or via the configured domain
-            web_url = "http://127.0.0.1:3000/" if settings.ENV == "dev" else f"https://{settings.PUBLIC_URL}/"
+            web_url = (
+                "http://127.0.0.1:3000/"
+                if settings.ENV == "dev"
+                else f"https://{settings.PUBLIC_URL}/"
+            )
             resp = await client.get(web_url, follow_redirects=False)
             # Accept 200, 301, 302 (redirects OK) - just check if server responds
             if resp.status_code < 500:
