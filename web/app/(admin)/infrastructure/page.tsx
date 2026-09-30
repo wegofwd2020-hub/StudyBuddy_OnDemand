@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { RefreshCw } from "lucide-react";
 import { formatTime } from "@/lib/utils/date";
 
@@ -126,16 +132,16 @@ export default function InfrastructureStatus() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Infrastructure Status</h1>
-          <p className="text-gray-600 mt-1">
+          <p className="mt-1 text-gray-600">
             Real-time health check for all services. Auto-refreshes every 30 seconds.
           </p>
         </div>
         <button
           onClick={fetchHealth}
           disabled={loading}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"
+          className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </button>
       </div>
@@ -165,7 +171,7 @@ export default function InfrastructureStatus() {
 
       {/* Services Grid */}
       {health && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Object.entries(health.services).map(([service, status]) => (
             <Card key={service}>
               <CardContent className="pt-6">
@@ -176,9 +182,7 @@ export default function InfrastructureStatus() {
                       {getStatusEmoji(status)} {status === "ok" ? "Healthy" : "Error"}
                     </p>
                   </div>
-                  <div className="text-2xl">
-                    {status === "ok" ? "✅" : "❌"}
-                  </div>
+                  <div className="text-2xl">{status === "ok" ? "✅" : "❌"}</div>
                 </div>
               </CardContent>
             </Card>
@@ -188,7 +192,7 @@ export default function InfrastructureStatus() {
 
       {/* Version Information */}
       {versions && (
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="border-blue-200 bg-blue-50">
           <CardHeader>
             <CardTitle className="text-sm">System Versions</CardTitle>
           </CardHeader>
@@ -211,8 +215,10 @@ export default function InfrastructureStatus() {
                 <div className="font-mono">v{versions.content_structure_version}</div>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t">
-              <span className="text-xs text-gray-500">Environment: {versions.api_environment}</span>
+            <div className="mt-3 border-t pt-3">
+              <span className="text-xs text-gray-500">
+                Environment: {versions.api_environment}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -241,7 +247,7 @@ export default function InfrastructureStatus() {
       {loading && !health && (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-600" />
+            <RefreshCw className="mx-auto mb-2 h-8 w-8 animate-spin text-blue-600" />
             <p className="text-gray-600">Fetching health status...</p>
           </div>
         </div>

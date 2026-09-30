@@ -89,7 +89,9 @@ export default function SignInPage() {
   // Off by default: school devices are shared, so surviving a browser close is
   // opt-in rather than assumed (#601).
   const [rememberMe, setRememberMe] = useState(false);
-  const expiredReason = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("expired_reason");
+  const expiredReason = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : "",
+  ).get("expired_reason");
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -255,11 +257,7 @@ export default function SignInPage() {
               </p>
             )}
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full"
-            >
+            <Button type="submit" disabled={loading} className="w-full">
               {loading ? "Signing in…" : "Sign in"}
             </Button>
           </form>
