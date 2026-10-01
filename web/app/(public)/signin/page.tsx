@@ -149,16 +149,12 @@ export default function SignInPage() {
 
     try {
       const res = await universalLogin({ email: emailVal, password: passwordVal });
-      console.log("[signin] Login response:", { auth_track: res.auth_track, role: res.role, first_login: res.first_login, user_id: res.user_id });
       persistSession(res, emailVal);
       setRemembered(rememberMe);
       markSessionAlive();
       const next = new URLSearchParams(window.location.search).get("next");
-      const destination = destinationFor(res.auth_track, res.role, res.first_login, next);
-      console.log("[signin] Redirecting to:", destination);
-      router.push(destination);
+      router.push(destinationFor(res.auth_track, res.role, res.first_login, next));
     } catch (err: unknown) {
-      console.error("[signin] Login error:", err);
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 401) {
         setError("Incorrect email or password.");
