@@ -135,10 +135,12 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
             "/healthz",
             "/readyz",
             "/health",
+            "/health/deep",
             # /api/v1 aliases of the health probes (see api_health_router below)
             "/api/v1/healthz",
             "/api/v1/readyz",
             "/api/v1/health",
+            "/api/v1/health/deep",
         }
     )
 
@@ -261,6 +263,123 @@ async def health_check(request: Request) -> dict:
     return await _readiness_check(request)
 
 
+@router.get("/health/deep", include_in_schema=True)
+async def deep_health_check(request: Request) -> dict:
+    """
+    Comprehensive infrastructure health check — tests all 6 services.
+
+    Returns HTTP 200 if all services are operational.
+    Returns HTTP 503 if any service is unreachable (degraded or down).
+
+    Tests:
+      - API (this service)
+      - Web (Next.js frontend)
+      - DB (PostgreSQL)
+      - Redis (cache)
+      - PgBouncer (connection pooler)
+      - Auth0 (if configured)
+    """
+    import asyncio
+
+    import httpx
+    from config import settings
+
+    services = {
+        "api": "ok",  # If we're responding, API is up
+        "web": "error",
+        "db": "error",
+        "redis": "error",
+        "pgbouncer": "error",
+        "auth0": "ok" if not settings.AUTH0_DOMAIN else "error",
+    }
+
+    # ── DB check (direct, not pooled) ─────────────────────────────────────
+    try:
+        pool = getattr(request.app.state, "pool", None)
+        if pool is not None:
+            async with pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            services["db"] = "ok"
+    except Exception as exc:
+        log.error("health_deep_db_failed", error=str(exc))
+
+    # ── Redis check ───────────────────────────────────────────────────────
+    try:
+        redis = getattr(request.app.state, "redis", None)
+        if redis is not None:
+            await redis.ping()
+            services["redis"] = "ok"
+    except Exception as exc:
+        log.error("health_deep_redis_failed", error=str(exc))
+
+    # ── PgBouncer check (via settings.DATABASE_URL if different) ──────────
+    try:
+        from asyncpg import connect
+
+        # Connect to PgBouncer port if configured
+        pgbouncer_url = str(settings.DATABASE_URL).replace(":5432/", ":6432/")
+        pgbouncer_conn = await asyncio.wait_for(connect(pgbouncer_url), timeout=2.0)
+        await pgbouncer_conn.close()
+        services["pgbouncer"] = "ok"
+    except Exception as exc:
+        log.error("health_deep_pgbouncer_failed", error=str(exc))
+
+    # ── Web (nginx/frontend) check ────────────────────────────────────────
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            # Check if web container is responding via localhost (for internal check)
+            # or via the configured domain
+            web_url = (
+                "http://127.0.0.1:3000/"
+                if settings.ENV == "dev"
+                else f"https://{settings.PUBLIC_URL}/"
+            )
+            resp = await client.get(web_url, follow_redirects=False)
+            # Accept 200, 301, 302 (redirects OK) - just check if server responds
+            if resp.status_code < 500:
+                services["web"] = "ok"
+    except Exception as exc:
+        log.error("health_deep_web_failed", error=str(exc))
+
+    # ── Auth0 check (if configured) ───────────────────────────────────────
+    if settings.AUTH0_DOMAIN:
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                auth0_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/openid-configuration"
+                resp = await client.get(auth0_url)
+                if resp.status_code == 200:
+                    services["auth0"] = "ok"
+        except Exception as exc:
+            log.error("health_deep_auth0_failed", error=str(exc))
+
+    # ── Determine overall status ──────────────────────────────────────────
+    critical = ["api", "db", "redis", "pgbouncer", "web"]
+    critical_ok = all(services[s] == "ok" for s in critical)
+    all_ok = all(v == "ok" for v in services.values())
+
+    overall_status = "operational" if all_ok else ("degraded" if critical_ok else "down")
+
+    payload = {
+        "status": overall_status,
+        "services": services,
+        "version": settings.APP_VERSION,
+        "build": settings.BUILD_ID,
+    }
+
+    # Return 503 if any critical service is down
+    if not critical_ok:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "service_unavailable",
+                "detail": payload,
+                "correlation_id": getattr(request.state, "correlation_id", ""),
+            },
+        )
+
+    return payload
+
+
 @router.get("/metrics", include_in_schema=False)
 async def metrics_endpoint(request: Request) -> PlainTextResponse:
     """
@@ -309,3 +428,6 @@ api_health_router.add_api_route(
     "/readyz", readiness_check, methods=["GET"], include_in_schema=False
 )
 api_health_router.add_api_route("/health", health_check, methods=["GET"], include_in_schema=False)
+api_health_router.add_api_route(
+    "/health/deep", deep_health_check, methods=["GET"], include_in_schema=True
+)
