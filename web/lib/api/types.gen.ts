@@ -2184,6 +2184,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/system/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get System Versions
+         * @description Get system version information: app version, DB schema, content versions.
+         *
+         *     Used by admin dashboard to display current system state and backup compatibility info.
+         */
+        get: operations["get_system_versions_api_v1_admin_system_versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/versions/mapping/{app_version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Version Mapping
+         * @description Get DB schema version for a given app version (git tag).
+         *
+         *     Example: GET /api/v1/admin/versions/mapping/v0.2.0
+         *     Returns: {app_version: "v0.2.0", db_schema_version: 71, released_at: "2026-09-26"}
+         */
+        get: operations["get_version_mapping_api_v1_admin_versions_mapping__app_version__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/versions/mapping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Version Mappings
+         * @description List all known app version → DB schema version mappings.
+         *     Useful for determining compatibility.
+         */
+        get: operations["list_version_mappings_api_v1_admin_versions_mapping_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/authoring/projects": {
         parameters: {
             query?: never;
@@ -14819,6 +14885,83 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_system_versions_api_v1_admin_system_versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    get_version_mapping_api_v1_admin_versions_mapping__app_version__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                app_version: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_version_mappings_api_v1_admin_versions_mapping_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
