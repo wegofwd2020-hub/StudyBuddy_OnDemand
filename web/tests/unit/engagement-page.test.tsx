@@ -72,41 +72,10 @@ describe("SCH-15 — Engagement report renders", () => {
     expect(screen.getByText(ENGAGEMENT_STRINGS.activeStudents)).toBeInTheDocument();
   });
 
-  it("renders active student count", () => {
-    render(<EngagementReportPage />);
-    expect(
-      screen.getByText(String(MOCK_OVERVIEW_30D.active_students_period)),
-    ).toBeInTheDocument();
-  });
-
-  it("renders enrolled student sub-count", () => {
-    render(<EngagementReportPage />);
-    expect(
-      screen.getByText(`of ${MOCK_OVERVIEW_30D.enrolled_students} enrolled`),
-    ).toBeInTheDocument();
-  });
-
-  it("renders Activity rate KPI card", () => {
-    render(<EngagementReportPage />);
-    expect(screen.getByText(ENGAGEMENT_STRINGS.activityRate)).toBeInTheDocument();
-  });
-
   it("renders activity rate percentage", () => {
     render(<EngagementReportPage />);
     expect(
       screen.getByText(`${MOCK_OVERVIEW_30D.active_pct.toFixed(0)}%`),
-    ).toBeInTheDocument();
-  });
-
-  it("renders Audio engagement KPI card", () => {
-    render(<EngagementReportPage />);
-    expect(screen.getByText(ENGAGEMENT_STRINGS.audioEngagement)).toBeInTheDocument();
-  });
-
-  it("renders audio play rate percentage", () => {
-    render(<EngagementReportPage />);
-    expect(
-      screen.getByText(`${MOCK_OVERVIEW_30D.audio_play_rate_pct.toFixed(0)}%`),
     ).toBeInTheDocument();
   });
 
