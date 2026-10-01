@@ -53,6 +53,54 @@
         }
       }
     },
+    "/health/deep": {
+      "get": {
+        "tags": [
+          "observability"
+        ],
+        "summary": "Deep Health Check",
+        "description": "Comprehensive infrastructure health check \u2014 tests all 6 services.\n\nReturns HTTP 200 if all services are operational.\nReturns HTTP 503 if any service is unreachable (degraded or down).\n\nTests:\n  - API (this service)\n  - Web (Next.js frontend)\n  - DB (PostgreSQL)\n  - Redis (cache)\n  - PgBouncer (connection pooler)\n  - Auth0 (if configured)",
+        "operationId": "deep_health_check_health_deep_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Deep Health Check Health Deep Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/deep": {
+      "get": {
+        "tags": [
+          "observability"
+        ],
+        "summary": "Deep Health Check",
+        "description": "Comprehensive infrastructure health check \u2014 tests all 6 services.\n\nReturns HTTP 200 if all services are operational.\nReturns HTTP 503 if any service is unreachable (degraded or down).\n\nTests:\n  - API (this service)\n  - Web (Next.js frontend)\n  - DB (PostgreSQL)\n  - Redis (cache)\n  - PgBouncer (connection pooler)\n  - Auth0 (if configured)",
+        "operationId": "deep_health_check_api_v1_health_deep_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Deep Health Check Api V1 Health Deep Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/exchange": {
       "post": {
         "tags": [
@@ -26145,6 +26193,44 @@
         ],
         "title": "SchoolLimitsResponse"
       },
+      "SchoolLocalizationResponse": {
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          },
+          "currency_code": {
+            "type": "string",
+            "title": "Currency Code"
+          },
+          "currency_symbol": {
+            "type": "string",
+            "title": "Currency Symbol"
+          },
+          "thousands_separator": {
+            "type": "string",
+            "title": "Thousands Separator"
+          },
+          "decimal_separator": {
+            "type": "string",
+            "title": "Decimal Separator"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country_code",
+          "currency_code",
+          "currency_symbol",
+          "thousands_separator",
+          "decimal_separator",
+          "timezone"
+        ],
+        "title": "SchoolLocalizationResponse"
+      },
       "SchoolProfileResponse": {
         "properties": {
           "school_id": {
@@ -26182,6 +26268,16 @@
             "type": "string",
             "format": "date-time",
             "title": "Created At"
+          },
+          "localization": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SchoolLocalizationResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
