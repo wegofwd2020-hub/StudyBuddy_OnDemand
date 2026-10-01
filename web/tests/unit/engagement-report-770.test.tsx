@@ -38,11 +38,23 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
 }));
 
 const OVERVIEW = {
+  school_id: "school-1",
+  period: "30d",
   enrolled_students: 40,
   active_students_period: 10,
   active_pct: 25,
+  lessons_viewed: 100,
+  quiz_attempts: 50,
+  first_attempt_pass_rate_pct: 75.0,
   audio_play_rate_pct: 12,
-  scope: { kind: "teacher", grades: [11] },
+  unreviewed_feedback_count: 0,
+  units_with_struggles: [],
+  units_no_activity: [],
+  available_grades: [11],
+  selected_grade: undefined,
+  available_subjects: [],
+  selected_subject: undefined,
+  scope: { kind: "grades", grades: [11] },
 };
 
 function renderPage() {
