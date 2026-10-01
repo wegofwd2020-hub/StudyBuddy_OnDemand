@@ -122,13 +122,17 @@ def test_lesson_prompt_diagram_emphasis_requests_mermaid() -> None:
     on = build_lesson_prompt("U1", "Natural Sciences", "Photosynthesis", 9, "en",
                              diagram_emphasis=True)
     off = build_lesson_prompt("U1", "Natural Sciences", "Photosynthesis", 9, "en")
-    assert "mermaid" in on.lower()
-    assert "mermaid" not in off.lower()
+    # Check for the _DIAGRAM_EMPHASIS sentinel, not bare "mermaid": subject
+    # guidelines may mention Mermaid.js unconditionally for certain subjects.
+    assert "visual emphasis" in on.lower()
+    assert "visual emphasis" not in off.lower()
 
 
 def test_tutorial_prompt_diagram_emphasis_requests_mermaid() -> None:
     on = build_tutorial_prompt("U1", "Mathematics", "Quadratics", 10, "en",
                                diagram_emphasis=True)
     off = build_tutorial_prompt("U1", "Mathematics", "Quadratics", 10, "en")
-    assert "mermaid" in on.lower()
-    assert "mermaid" not in off.lower()
+    # Same rationale: _MATHEMATICS_GUIDELINES mentions Mermaid for coordinate
+    # diagrams unconditionally; test the opt-in directive block instead.
+    assert "visual emphasis" in on.lower()
+    assert "visual emphasis" not in off.lower()
