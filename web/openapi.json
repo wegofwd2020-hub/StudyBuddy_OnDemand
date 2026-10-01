@@ -53,6 +53,54 @@
         }
       }
     },
+    "/health/deep": {
+      "get": {
+        "tags": [
+          "observability"
+        ],
+        "summary": "Deep Health Check",
+        "description": "Comprehensive infrastructure health check \u2014 tests all 6 services.\n\nReturns HTTP 200 if all services are operational.\nReturns HTTP 503 if any service is unreachable (degraded or down).\n\nTests:\n  - API (this service)\n  - Web (Next.js frontend)\n  - DB (PostgreSQL)\n  - Redis (cache)\n  - PgBouncer (connection pooler)\n  - Auth0 (if configured)",
+        "operationId": "deep_health_check_health_deep_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Deep Health Check Health Deep Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/deep": {
+      "get": {
+        "tags": [
+          "observability"
+        ],
+        "summary": "Deep Health Check",
+        "description": "Comprehensive infrastructure health check \u2014 tests all 6 services.\n\nReturns HTTP 200 if all services are operational.\nReturns HTTP 503 if any service is unreachable (degraded or down).\n\nTests:\n  - API (this service)\n  - Web (Next.js frontend)\n  - DB (PostgreSQL)\n  - Redis (cache)\n  - PgBouncer (connection pooler)\n  - Auth0 (if configured)",
+        "operationId": "deep_health_check_api_v1_health_deep_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Deep Health Check Api V1 Health Deep Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/exchange": {
       "post": {
         "tags": [
@@ -4929,6 +4977,99 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/system/versions": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get System Versions",
+        "description": "Get system version information: app version, DB schema, content versions.\n\nUsed by admin dashboard to display current system state and backup compatibility info.",
+        "operationId": "get_system_versions_api_v1_admin_system_versions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get System Versions Api V1 Admin System Versions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/versions/mapping/{app_version}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get Version Mapping",
+        "description": "Get DB schema version for a given app version (git tag).\n\nExample: GET /api/v1/admin/versions/mapping/v0.2.0\nReturns: {app_version: \"v0.2.0\", db_schema_version: 71, released_at: \"2026-09-26\"}",
+        "operationId": "get_version_mapping_api_v1_admin_versions_mapping__app_version__get",
+        "parameters": [
+          {
+            "name": "app_version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "App Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Version Mapping Api V1 Admin Versions Mapping  App Version  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/versions/mapping": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Version Mappings",
+        "description": "List all known app version \u2192 DB schema version mappings.\nUseful for determining compatibility.",
+        "operationId": "list_version_mappings_api_v1_admin_versions_mapping_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response List Version Mappings Api V1 Admin Versions Mapping Get"
                 }
               }
             }
