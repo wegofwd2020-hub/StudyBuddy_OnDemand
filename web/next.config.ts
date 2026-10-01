@@ -9,7 +9,7 @@ const withNextIntl = createNextIntlPlugin("./lib/i18n/request.ts");
 // reachable host in other deploys.
 const backendOrigin = process.env.INTERNAL_API_URL
   ? new URL(process.env.INTERNAL_API_URL).origin
-  : "http://localhost:8000";
+  : "http://localhost:8001";
 
 // Content-Security-Policy
 // - default-src 'self': baseline allowlist

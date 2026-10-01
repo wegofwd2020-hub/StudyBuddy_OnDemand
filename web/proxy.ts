@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import type { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getAuth0 } from "./lib/auth0";
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         "[auth0-middleware] Dev/test mode - allowing request through:",
         error,
       );
-      return undefined as unknown as NextResponse;
+      return NextResponse.next();
     }
     // Production: auth failures must not silently pass through
     console.error("[auth0-middleware] Production auth error:", error);

@@ -179,7 +179,7 @@ container_on_port() {
     $RUNTIME ps --format "{{.Names}} {{.Ports}}" 2>/dev/null \
         | grep ":${port}->" \
         | awk '{print $1}' \
-        | head -1
+        | head -1 || true
 }
 
 # ── Start PostgreSQL ──────────────────────────────────────────────────────────
@@ -215,7 +215,7 @@ start_postgres() {
         -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
         -p "${DB_PORT}:5432" \
         -v sb_postgres_data:/var/lib/postgresql/data \
-        docker.io/postgres:16-alpine \
+        docker.io/pgvector/pgvector:pg16 \
         postgres -c log_min_messages=WARNING
 
     wait_for_port localhost "$DB_PORT" "PostgreSQL"
@@ -274,14 +274,14 @@ run_migrations() {
 
 # ── Start API server ──────────────────────────────────────────────────────────
 start_api() {
-    info "Starting FastAPI development server on http://localhost:8000 ..."
+    info "Starting FastAPI development server on http://localhost:8001 ..."
     echo ""
-    echo -e "  ${GREEN}API docs:${NC}  http://localhost:8000/api/docs"
-    echo -e "  ${GREEN}Health:${NC}    http://localhost:8000/health"
-    echo -e "  ${GREEN}Metrics:${NC}   http://localhost:8000/metrics  (token-protected)"
+    echo -e "  ${GREEN}API docs:${NC}  http://localhost:8001/api/docs"
+    echo -e "  ${GREEN}Health:${NC}    http://localhost:8001/health"
+    echo -e "  ${GREEN}Metrics:${NC}   http://localhost:8001/metrics  (token-protected)"
     echo ""
     pushd "$BACKEND_DIR" > /dev/null
-    PYTHONPATH=. uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    PYTHONPATH=. uvicorn main:app --reload --host 0.0.0.0 --port 8001
     popd > /dev/null
 }
 

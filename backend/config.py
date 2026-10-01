@@ -60,15 +60,15 @@ class Settings(BaseSettings):
     ADMIN_JWT_EXPIRE_MINUTES: int = 60
 
     # ── Auth0 ────────────────────────────────────────────────────────────────
-    AUTH0_DOMAIN: str
-    AUTH0_JWKS_URL: str
-    AUTH0_STUDENT_CLIENT_ID: str
-    AUTH0_TEACHER_CLIENT_ID: str
+    AUTH0_DOMAIN: str = ""
+    AUTH0_JWKS_URL: str = ""
+    AUTH0_STUDENT_CLIENT_ID: str = ""
+    AUTH0_TEACHER_CLIENT_ID: str = ""
 
     # Auth0 Management API
-    AUTH0_MGMT_CLIENT_ID: str
-    AUTH0_MGMT_CLIENT_SECRET: str
-    AUTH0_MGMT_API_URL: str
+    AUTH0_MGMT_CLIENT_ID: str = ""
+    AUTH0_MGMT_CLIENT_SECRET: str = ""
+    AUTH0_MGMT_API_URL: str = ""
 
     # ── CORS ──────────────────────────────────────────────────────────────────
     # Exact-match origin allowlist (cloud hostnames, explicit dev URLs).
