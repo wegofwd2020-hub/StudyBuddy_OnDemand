@@ -122,7 +122,7 @@ services:
 
   # ── PgBouncer (transaction-pooling, max 200 client connections) ─────────────
   pgbouncer:
-    image: edoburu/pgbouncer:latest
+    build: ./pgbouncer
     restart: unless-stopped
     environment:
       DB_HOST: db
