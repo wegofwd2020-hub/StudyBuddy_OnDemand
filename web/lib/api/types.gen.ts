@@ -50,6 +50,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/health/deep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Deep Health Check
+         * @description Comprehensive infrastructure health check — tests all 6 services.
+         *
+         *     Returns HTTP 200 if all services are operational.
+         *     Returns HTTP 503 if any service is unreachable (degraded or down).
+         *
+         *     Tests:
+         *       - API (this service)
+         *       - Web (Next.js frontend)
+         *       - DB (PostgreSQL)
+         *       - Redis (cache)
+         *       - PgBouncer (connection pooler)
+         *       - Auth0 (if configured)
+         */
+        get: operations["deep_health_check_health_deep_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health/deep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Deep Health Check
+         * @description Comprehensive infrastructure health check — tests all 6 services.
+         *
+         *     Returns HTTP 200 if all services are operational.
+         *     Returns HTTP 503 if any service is unreachable (degraded or down).
+         *
+         *     Tests:
+         *       - API (this service)
+         *       - Web (Next.js frontend)
+         *       - DB (PostgreSQL)
+         *       - Redis (cache)
+         *       - PgBouncer (connection pooler)
+         *       - Auth0 (if configured)
+         */
+        get: operations["deep_health_check_api_v1_health_deep_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/exchange": {
         parameters: {
             query?: never;
@@ -9926,6 +9988,21 @@ export interface components {
             /** Has Override */
             has_override: boolean;
         };
+        /** SchoolLocalizationResponse */
+        SchoolLocalizationResponse: {
+            /** Country Code */
+            country_code: string;
+            /** Currency Code */
+            currency_code: string;
+            /** Currency Symbol */
+            currency_symbol: string;
+            /** Thousands Separator */
+            thousands_separator: string;
+            /** Decimal Separator */
+            decimal_separator: string;
+            /** Timezone */
+            timezone: string;
+        };
         /** SchoolProfileResponse */
         SchoolProfileResponse: {
             /** School Id */
@@ -9945,6 +10022,7 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            localization?: components["schemas"]["SchoolLocalizationResponse"] | null;
         };
         /** SchoolRegisterRequest */
         SchoolRegisterRequest: {
@@ -11583,6 +11661,50 @@ export interface operations {
         };
     };
     health_check_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    deep_health_check_health_deep_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    deep_health_check_api_v1_health_deep_get: {
         parameters: {
             query?: never;
             header?: never;
