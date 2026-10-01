@@ -84,8 +84,9 @@ export const MOCK_HEALTH_ALL_ACTIVE: CurriculumHealthReport = {
 export const ENGAGEMENT_STRINGS = {
   pageHeading: "Engagement Report",
   period30d: "Last 30 days",
-  // KPI cards
-  activeStudents: "Active students",
+  // KPI cards — component rebuilt in #770; "Active students" became "Active",
+  // "Activity rate" and "Audio engagement" cards were removed.
+  activeStudents: "Active",
   activityRate: "Activity rate",
   audioEngagement: "Audio engagement",
   // Inactive card
