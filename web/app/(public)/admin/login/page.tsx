@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminLogin } from "@/lib/api/admin";
+import { markSessionAlive } from "@/lib/auth/session";
 import { BookOpen, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
@@ -19,6 +20,7 @@ export default function AdminLoginPage() {
     try {
       const { token } = await adminLogin(email, password);
       localStorage.setItem("sb_admin_token", token);
+      markSessionAlive();
       router.push("/admin/dashboard");
     } catch (err: unknown) {
       const apiMsg = (err as { response?: { data?: { detail?: string } } })?.response

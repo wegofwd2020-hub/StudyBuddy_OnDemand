@@ -184,10 +184,14 @@ container_on_port() {
 
 # ── Start PostgreSQL ──────────────────────────────────────────────────────────
 start_postgres() {
-    # Already our container and running?
+    # Already our container and running with socket mounted?
     if $RUNTIME inspect "$DB_CONTAINER" --format "{{.State.Running}}" 2>/dev/null | grep -q "true"; then
-        success "PostgreSQL already running ($DB_CONTAINER)"
-        return
+        if [[ -S "/tmp/sb-pg-socket/.s.PGSQL.5432" ]]; then
+            success "PostgreSQL already running ($DB_CONTAINER)"
+            return
+        fi
+        info "Recreating $DB_CONTAINER to add Unix socket mount ..."
+        $RUNTIME rm -f "$DB_CONTAINER" &>/dev/null || true
     fi
 
     # Our container exists but is stopped/created — remove stale instance first.
@@ -215,6 +219,7 @@ start_postgres() {
         -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
         -p "${DB_PORT}:5432" \
         -v sb_postgres_data:/var/lib/postgresql/data \
+        -v /tmp/sb-pg-socket:/var/run/postgresql \
         docker.io/pgvector/pgvector:pg16 \
         postgres -c log_min_messages=WARNING
 
@@ -224,10 +229,14 @@ start_postgres() {
 
 # ── Start Redis ───────────────────────────────────────────────────────────────
 start_redis() {
-    # Already our container and running?
+    # Already our container and running with socket mounted?
     if $RUNTIME inspect "$REDIS_CONTAINER" --format "{{.State.Running}}" 2>/dev/null | grep -q "true"; then
-        success "Redis already running ($REDIS_CONTAINER)"
-        return
+        if [[ -S "${HOME}/.studybuddy/redis-socket/redis.sock" ]]; then
+            success "Redis already running ($REDIS_CONTAINER)"
+            return
+        fi
+        info "Recreating $REDIS_CONTAINER to add Unix socket mount ..."
+        $RUNTIME rm -f "$REDIS_CONTAINER" &>/dev/null || true
     fi
 
     # Our container exists but is stopped/created — remove stale instance first.
@@ -248,13 +257,17 @@ start_redis() {
     fi
 
     info "Starting Redis container ..."
+    mkdir -p ${HOME}/.studybuddy/redis-socket && chmod 777 ${HOME}/.studybuddy/redis-socket
     $RUNTIME run -d \
         --name "$REDIS_CONTAINER" \
         -p "${REDIS_PORT}:6379" \
         -v sb_redis_data:/data \
+        -v ${HOME}/.studybuddy/redis-socket:/var/run/redis \
         docker.io/redis:7-alpine \
         redis-server \
             --requirepass "${REDIS_PASSWORD}" \
+            --unixsocket /var/run/redis/redis.sock \
+            --unixsocketperm 777 \
             --appendonly yes \
             --appendfsync everysec \
             --maxmemory 256mb \
@@ -391,6 +404,9 @@ case "$COMMAND" in
     setup_venv
     start_postgres
     start_redis
+    # Override to Unix sockets — bypasses Docker TCP port mapping (iptables/nftables conflict on this host)
+    export DATABASE_URL="postgresql://studybuddy:${POSTGRES_PASSWORD}@/studybuddy?host=/tmp/sb-pg-socket"
+    export REDIS_URL="unix://:${REDIS_PASSWORD}@${HOME}/.studybuddy/redis-socket/redis.sock?db=0"
     run_migrations
     start_api
     ;;

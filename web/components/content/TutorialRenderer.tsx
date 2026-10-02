@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ChevronDown, AlertTriangle, Lightbulb, HelpCircle } from "lucide-react";
-import { SBMarkdown } from "@/components/content/Markdown";
+import { SBMarkdown, SBMarkdownInline } from "@/components/content/Markdown";
 import { VisualSlot } from "@/components/content/VisualSlot";
 import { cn } from "@/lib/utils";
 import type { TutorialContent, TutorialSection } from "@/lib/types/api";
@@ -66,7 +66,7 @@ export function TutorialRenderer({ tutorial }: TutorialRendererProps) {
           </div>
           <ul className="font-heading list-disc space-y-1 pl-5 text-sm text-amber-900">
             {tutorial.common_mistakes.map((m, i) => (
-              <li key={i}>{m}</li>
+              <li key={i}><SBMarkdownInline>{m}</SBMarkdownInline></li>
             ))}
           </ul>
         </aside>

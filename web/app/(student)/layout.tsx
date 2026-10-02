@@ -15,21 +15,12 @@ export const metadata: Metadata = {
 };
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
-  let session = null;
-
-  try {
-    session = await getAuth0().getSession();
-  } catch {
-    // Auth0 not configured (expected in local dev with local auth)
-  }
-
-  if (!session) {
-    session = await getDevSession();
-  }
-
-  if (!session) {
-    session = await getLocalStudentSession();
-  }
+  const session =
+    (await Promise.resolve()
+      .then(() => getAuth0().getSession())
+      .catch(() => null)) ??
+    (await getDevSession()) ??
+    (await getLocalStudentSession());
 
   if (!session) {
     redirect("/login");

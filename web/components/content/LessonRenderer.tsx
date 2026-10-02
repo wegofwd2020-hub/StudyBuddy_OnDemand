@@ -1,5 +1,6 @@
 import type { LessonContent } from "@/lib/types/api";
 import { CheckCircle2 } from "lucide-react";
+import { SBMarkdown, SBMarkdownInline } from "@/components/content/Markdown";
 
 interface LessonRendererProps {
   lesson: LessonContent;
@@ -13,9 +14,7 @@ export function LessonRenderer({ lesson }: LessonRendererProps) {
       {lesson.sections.map((section, i) => (
         <section key={i} className="mb-8">
           <h2 className="mb-3 text-lg font-semibold text-gray-800">{section.heading}</h2>
-          <p className="leading-relaxed whitespace-pre-wrap text-gray-700">
-            {section.body}
-          </p>
+          <SBMarkdown>{section.body}</SBMarkdown>
         </section>
       ))}
 
@@ -29,7 +28,7 @@ export function LessonRenderer({ lesson }: LessonRendererProps) {
                   className="mt-0.5 h-4 w-4 shrink-0 text-blue-500"
                   aria-hidden="true"
                 />
-                {point}
+                <SBMarkdownInline>{point}</SBMarkdownInline>
               </li>
             ))}
           </ul>
