@@ -55,6 +55,8 @@ Login at: **http://localhost:3000/signin**
 | gopal.menon@vaganam.dev | 11 | Grade 11 — Vaganam |
 | sowmya.raj@vaganam.dev | 11 | Grade 11 — Vaganam |
 | harish.kumar@vaganam.dev | 11 | Grade 11 — Vaganam |
+| lalitha.menon@vaganam.dev | 11 | Grade 11 — Humanities (G11-HIST) |
+| rajan.iyer@vaganam.dev | 11 | Grade 11 — Humanities (G11-HIST) |
 | revathi.pillai@vaganam.dev | 12 | Grade 12 — Vaganam |
 | manoj.chandran@vaganam.dev | 12 | Grade 12 — Vaganam |
 | geetha.varma@vaganam.dev | 12 | Grade 12 — Vaganam |
@@ -71,6 +73,7 @@ Login at: **http://localhost:3000/signin**
 | Grade 9 | default-2026-g9 | build if needed |
 | Grade 10 | default-2026-g10 | build if needed |
 | Grade 11 | default-2026-g11 | build if needed |
+| Grade 11 — Humanities | default-2026-g11-humanities | 2 units (G11-HIST); restored from backup |
 | Grade 12 | default-2026-g12 | build if needed |
 
 ---
