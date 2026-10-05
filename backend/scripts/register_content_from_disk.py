@@ -90,12 +90,14 @@ async def main() -> None:
             if d.is_dir() and (d / "meta.json").exists()
         )
         new_units = 0
+        subjects_seen: set[str] = set()
         for unit_dir in unit_dirs:
             unit_id = unit_dir.name
+            subject = _unit_subject(unit_dir)
+            subjects_seen.add(subject)
             if (unit_id, curriculum_id) in existing_units:
                 continue
             title = _unit_title(unit_dir)
-            subject = _unit_subject(unit_dir)
             await conn.execute("""
                 INSERT INTO curriculum_units
                     (unit_id, curriculum_id, subject, title, unit_name,
@@ -107,6 +109,21 @@ async def main() -> None:
 
         if new_units:
             print(f"    registered {new_units} units")
+
+        # Ensure every subject has a published content_subject_versions row so
+        # the content delivery guard (check_content_published) doesn't 404.
+        new_csv = 0
+        for subject in subjects_seen:
+            result = await conn.execute("""
+                INSERT INTO content_subject_versions
+                    (curriculum_id, subject, status, published_at)
+                VALUES ($1, $2, 'published', now())
+                ON CONFLICT (curriculum_id, subject, version_number) DO NOTHING
+            """, curriculum_id, subject)
+            if result == "INSERT 0 1":
+                new_csv += 1
+        if new_csv:
+            print(f"    published {new_csv} subject version(s)")
 
     await conn.close()
     print("\nDone.")
