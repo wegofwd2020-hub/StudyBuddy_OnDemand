@@ -14,6 +14,18 @@
 
 set -euo pipefail
 
+# ── Hostname guard ────────────────────────────────────────────────────────────
+# This script runs FROM vaganam (pushes to mambakkam via SSH).
+# Running it from any other machine is almost certainly a mistake.
+CURRENT_HOST="$(hostname)"
+EXPECTED_HOST="vaganam"
+if [[ "$CURRENT_HOST" != "$EXPECTED_HOST" ]]; then
+  echo "ERROR: wrong machine. Expected '$EXPECTED_HOST', got '$CURRENT_HOST'."
+  echo "       Mambakkam deploys are pushed FROM vaganam, not run on the server."
+  exit 1
+fi
+echo "Host: $CURRENT_HOST  →  pushing to mambakkam"
+
 SERVER="root@178.105.160.62"
 REMOTE="/opt/studybuddy"
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"

@@ -10,6 +10,17 @@
 # =============================================================================
 
 set -euo pipefail
+
+# ── Hostname guard ────────────────────────────────────────────────────────────
+CURRENT_HOST="$(hostname)"
+EXPECTED_HOST="vaganam"
+if [[ "$CURRENT_HOST" != "$EXPECTED_HOST" ]]; then
+  echo "ERROR: wrong machine. Expected '$EXPECTED_HOST', got '$CURRENT_HOST'."
+  echo "       Do not run vaganam scripts on another host."
+  exit 1
+fi
+echo "Host: $CURRENT_HOST"
+
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO"
 
