@@ -34,6 +34,20 @@ export interface LessonSection {
   body: string;
 }
 
+export interface VisualHint {
+  query: string;
+  caption: string;
+  placement: string;
+}
+
+export interface WikimediaImage {
+  url: string;
+  thumbnail_url: string;
+  title: string;
+  attribution: string;
+  license: string;
+}
+
 export interface LessonContent {
   unit_id: string;
   title: string;
@@ -42,6 +56,7 @@ export interface LessonContent {
   lang: string;
   sections: LessonSection[];
   key_points: string[];
+  visual_hints?: VisualHint[];
   has_audio: boolean;
 }
 

@@ -90,6 +90,24 @@ Rules:
   - Attribution line starts with "— " (em dash + space), then the
     speaker's name only. No role, no date, no source title.
 
+CALLOUT BOXES — use blockquote syntax with a bold label for key terms,
+interesting facts, and real-world connections. Use sparingly (1–2 per
+section). Supported types:
+
+  > **Key Term:** *Photosynthesis* — the process by which plants convert
+  > light energy into glucose using CO₂ and water.
+
+  > **Did You Know?** The human body contains approximately 37 trillion cells.
+
+  > **Real-World Example:** The accounting equation underpins every balance
+  > sheet filed with tax authorities worldwide.
+
+  > **Common Mistake:** Students often confuse revenue with profit.
+  > Revenue is total income; profit is what remains after expenses.
+
+  > **Primary Source:** The Treaty of Versailles (1919) — Article 231,
+  > the "War Guilt Clause", held Germany solely responsible for WWI.
+
 LISTS AND BULLET POINTS — CRITICAL for readability:
   - Unordered lists use "- " (hyphen + space) ONLY. No *, •, or other symbols.
   - Numbered lists use "1. ", "2. ", "3. " format (not "i.", "a.", or other styles).
@@ -145,6 +163,42 @@ values, bold rows for subtotals and totals. Always spell out currency
 Accounting equations render as KaTeX:
   $$\\text{Assets} = \\text{Liabilities} + \\text{Equity}$$
   $$\\text{Gross Profit Margin} = \\frac{\\text{Gross Profit}}{\\text{Revenue}} \\times 100\\%$$
+
+TAX FILING AND FORMS — when covering taxation topics:
+  - Show a sample tax computation as a table (Income, Deductions, Taxable
+    Income, Tax Payable) with concrete numbers.
+  - Distinguish tax types in a comparison table:
+
+| Tax Type | Who Pays | Rate Basis | Example |
+|:---------|:---------|:-----------|:--------|
+| Income Tax (Federal) | Individuals / Corporations | Progressive brackets | 22% on USD 44,726–95,375 |
+| State Income Tax | Individuals | Flat or progressive | varies by state |
+| Sales Tax | Consumers (via retailers) | Percentage of sale price | 6–10% in most US states |
+| Corporate Tax | Corporations | Flat federal rate | 21% federal (USA) |
+
+  - For GST / VAT topics: show input vs output tax calculation as a table.
+  - Always distinguish between direct tax (income, corporate) and indirect
+    tax (sales, GST, VAT) in a callout or table.
+
+COMPANY FORMATION — when covering incorporation topics, use a Mermaid
+flowchart for the registration process:
+
+  ```mermaid
+  graph TD
+    A[Choose Business Structure] --> B[Register Business Name]
+    B --> C[File Articles of Incorporation]
+    C --> D[Obtain EIN / Tax ID]
+    D --> E[Open Business Bank Account]
+    E --> F[Register for State / Local Taxes]
+    F --> G[Company Operational]
+  ```
+
+Key formation documents — describe each as a callout:
+  > **Key Term:** *Memorandum of Association* — the founding document that
+  > defines a company's name, registered address, objectives, and share capital.
+
+  > **Key Term:** *Articles of Association* — internal rules governing how
+  > the company is managed, including director powers and shareholder rights.
 """
 
 
@@ -171,6 +225,36 @@ Units: use KaTeX `\\mathrm{}` for unit typesetting in display equations
 Unicode is fine ("9.8 m/s²").
 
 Observation tables and lab data should always be tabular.
+
+BIOLOGY-SPECIFIC VISUAL DESCRIPTIONS:
+- Anatomy topics: describe the organ's appearance, colour, location in the
+  body, and size in prose. Always include a labeled structure table:
+
+| Structure | Location | Function |
+|:----------|:---------|:---------|
+| Left ventricle | Lower-left of heart | Pumps oxygenated blood to body |
+| Mitral valve | Between left atrium and ventricle | Prevents backflow |
+
+- Organisms and habitats: describe the organism's physical features,
+  geographic range, and habitat type. Use a classification table:
+
+| Rank | Classification |
+|:-----|:--------------|
+| Kingdom | Animalia |
+| Phylum | Chordata |
+| Class | Mammalia |
+| Order | Carnivora |
+| Family | Felidae |
+| Genus | Panthera |
+| Species | *Panthera leo* |
+
+- Life cycles: use Mermaid flowcharts (```mermaid graph TD```) for
+  multi-stage cycles (cell cycle, metamorphosis, plant reproduction).
+- Ecosystems: food chains and food webs as Mermaid diagrams:
+  ```mermaid
+  graph LR
+    Grass --> Grasshopper --> Frog --> Snake --> Hawk
+  ```
 
 EXPERIMENTS & VISUAL DESCRIPTIONS — CRITICAL for quality:
 - For experiment steps: include detailed apparatus setup with dimensions
@@ -216,6 +300,54 @@ GRAPHS AND DIAGRAMS — HIGH QUALITY:
 """
 
 
+_HISTORY_GUIDELINES = """SUBJECT-SPECIFIC — HISTORY / SOCIAL STUDIES / HUMANITIES:
+
+TIMELINES — use Mermaid timeline diagrams for any chronological content.
+Always embed the diagram inside the relevant section body as a fenced block:
+
+  ```mermaid
+  timeline
+    title Rise and Fall of the Roman Empire
+    509 BCE : Roman Republic founded
+    264 BCE : First Punic War begins
+    27 BCE  : Augustus becomes first Emperor
+    313 CE  : Edict of Milan — Christianity tolerated
+    476 CE  : Western Roman Empire falls
+  ```
+
+Mermaid timeline rules:
+  - Use "BCE" / "CE" for historical dates.
+  - Keep each event label under 10 words.
+  - 4–8 entries per timeline — do not overcrowd.
+  - One timeline per section maximum.
+
+MAPS AND TERRITORY — when describing battles, empires, migrations, or
+trade routes, include a visual_hint pointing to a relevant Wikimedia map.
+Describe the geographic context in prose alongside it.
+
+COMPARISON TABLES — required for:
+  - Before/after political changes (e.g., Europe before and after WWI)
+  - Cause ↔ Effect tables for major events
+  - Side-by-side comparison of civilisations, empires, or leaders
+
+| Cause | Effect |
+|:------|:-------|
+| Treaty of Versailles reparations | Hyperinflation in Weimar Germany |
+| Great Depression (1929) | Rise of extremist political parties |
+
+BIOGRAPHIES — when mentioning key historical figures, open with a callout:
+
+  > **Key Figure:** *Nelson Mandela* (1918–2013) — South African anti-apartheid
+  > activist and first democratically elected President of South Africa.
+
+PRIMARY SOURCES — reference documents by their exact historical name. Use
+a Primary Source callout when citing them. Never invent document text.
+
+CAUSE AND EFFECT — always make causal chains explicit. Use numbered lists
+or flowcharts (```mermaid graph TD```) for multi-step causation chains.
+"""
+
+
 _CS_GUIDELINES = """SUBJECT-SPECIFIC — COMPUTER SCIENCE / TECHNOLOGY:
 
 Pseudocode and program listings — fenced code blocks with the language tag
@@ -252,14 +384,19 @@ TOML) in fenced blocks tagged with the format.
 # keyword — matching is anchored on specific discipline names only).
 _SUBJECT_GUIDELINE_KEYWORDS: list[tuple[tuple[str, ...], str]] = [
     (("computer science", "computing", "informatics", "programming", "coding",
-      "information technology", "technology"),
+      "information technology", "technology", "-tech"),
      _CS_GUIDELINES),
-    (("accountancy", "accounting", "business studies", "economics", "commerce"),
+    (("accountancy", "accounting", "business studies", "economics", "commerce",
+      "-acc", "-econ", "-bus"),
      _COMMERCE_GUIDELINES),
-    (("physics", "chemistry", "biology"),
+    (("physics", "chemistry", "biology", "-sci", "-bio", "-chem", "-phys"),
      _SCIENCE_GUIDELINES),
-    (("mathematics", "math", "maths", "algebra", "geometry", "calculus", "statistics"),
+    (("mathematics", "math", "maths", "algebra", "geometry", "calculus", "statistics",
+      "-math"),
      _MATHEMATICS_GUIDELINES),
+    (("history", "social studies", "humanities", "geography", "civics",
+      "-hist", "-hum"),
+     _HISTORY_GUIDELINES),
 ]
 
 
@@ -272,6 +409,180 @@ def _subject_guidelines(subject: str) -> str:
         for kw in keywords:
             if kw in s:
                 return block
+    return ""
+
+
+def _visual_hints_block(subject: str) -> str:
+    """Return visual_hints instructions for subjects that benefit from images.
+
+    Commerce, Biology, History, Chemistry, Physics, Mathematics, Geography,
+    Political Science, and Psychology get subject-specific Wikimedia query
+    guidance. All other subjects return ''.
+    """
+    s = (subject or "").strip().lower()
+    if any(kw in s for kw in ("accountancy", "accounting", "business", "economics",
+                               "commerce", "-acc", "-econ", "-bus")):
+        return """
+VISUAL HINTS — for this Commerce lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for a real image that
+would enrich the lesson. Choose queries specific to the lesson topic.
+
+Good Commerce queries:
+- "income tax return form 1040 blank"
+- "balance sheet accounting document example"
+- "stock exchange trading floor NYSE"
+- "company registration certificate"
+- "goods and services tax GST invoice"
+- "corporate annual report cover"
+
+Keep queries specific — generic terms return irrelevant results.
+"""
+    if any(kw in s for kw in ("biology", "-bio", "-sci", "life science")):
+        return """
+VISUAL HINTS — for this Biology lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for a real image that
+would enrich the lesson. Choose queries specific to the lesson topic.
+
+Good Biology queries:
+- "human heart anatomy labeled diagram"
+- "animal cell structure labeled"
+- "Amazon rainforest canopy habitat"
+- "Bengal tiger natural habitat India"
+- "mitosis stages diagram"
+- "chloroplast structure cross section"
+- "coral reef ecosystem underwater"
+
+For organisms: include geographic range (e.g. "African savanna elephant").
+For anatomy: include "labeled diagram" or "cross section" for clarity.
+"""
+    if any(kw in s for kw in ("history", "humanities", "social studies",
+                               "civics", "-hist", "-hum")):
+        return """
+VISUAL HINTS — for this History lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for an open-source
+historical image. Choose queries specific to the lesson topic.
+
+Good History queries:
+- "World War I Western Front map 1914"
+- "Mahatma Gandhi portrait photograph"
+- "French Revolution storming Bastille"
+- "ancient Rome Forum ruins"
+- "Treaty of Versailles signing ceremony 1919"
+- "Industrial Revolution factory workers 19th century"
+- "Roman Empire map at its peak"
+
+For people: add "portrait" or "photograph". For places: add "historical map".
+Only use images of historical figures (deceased); never suggest images of
+living individuals.
+"""
+    if any(kw in s for kw in ("geography", "geo", "-geo")):
+        return """
+VISUAL HINTS — for this Geography lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for a map, landform,
+or geographic phenomenon that would enrich the lesson.
+
+Good Geography queries:
+- "world map political countries"
+- "Amazon River basin South America map"
+- "tectonic plates world map diagram"
+- "monsoon rainfall pattern Asia map"
+- "urban rural land use diagram"
+- "glacial valley U-shaped landform"
+- "population density world choropleth map"
+
+For maps: add "map" and a region name. For landforms: add the feature name
+and a location for specificity.
+"""
+    if any(kw in s for kw in ("political science", "politics", "civics",
+                               "government", "-pol")):
+        return """
+VISUAL HINTS — for this Political Science lesson, include 2–3 visual_hints
+in the JSON. Each hint is a Wikimedia Commons search query for a diagram,
+document, or historical image that would enrich the lesson.
+
+Good Political Science queries:
+- "United Nations General Assembly hall"
+- "branches of government diagram separation of powers"
+- "electoral system proportional representation diagram"
+- "Universal Declaration Human Rights document"
+- "parliamentary chamber debate legislature"
+- "NATO member countries map"
+- "European Union flag headquarters Brussels"
+
+For institutions: name the specific body. For concepts: add "diagram" or
+"infographic". Only historical figures (deceased).
+"""
+    if any(kw in s for kw in ("psychology", "psych", "-psy")):
+        return """
+VISUAL HINTS — for this Psychology lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for a diagram or image
+that would illustrate a key concept.
+
+Good Psychology queries:
+- "Maslow hierarchy of needs pyramid diagram"
+- "human brain anatomy labeled regions"
+- "classical conditioning Pavlov experiment diagram"
+- "neuron synapse structure diagram"
+- "cognitive behavioral therapy CBT model diagram"
+- "sleep cycle stages REM diagram"
+- "Erikson stages psychosocial development chart"
+
+For brain anatomy: add "labeled" or "diagram". For theories: name the
+theorist and concept for specificity.
+"""
+    if any(kw in s for kw in ("chemistry", "chem", "-chem")):
+        return """
+VISUAL HINTS — for this Chemistry lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for a real image that
+would enrich the lesson.
+
+Good Chemistry queries:
+- "periodic table elements standard"
+- "sodium chloride crystal structure NaCl"
+- "distillation apparatus laboratory glass"
+- "hydrogen bond water molecule diagram"
+- "benzene ring structure molecular model"
+- "electrolysis apparatus diagram"
+- "acid base titration burette conical flask"
+
+For molecular structures: add "molecular model" or "structural formula".
+For lab equipment: add "laboratory" or "apparatus".
+"""
+    if any(kw in s for kw in ("physics", "phys", "-phys")):
+        return """
+VISUAL HINTS — for this Physics lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for a real image that
+would enrich the lesson.
+
+Good Physics queries:
+- "Newton's cradle momentum demonstration"
+- "electromagnetic spectrum diagram wavelength"
+- "simple pendulum motion diagram"
+- "electric circuit series parallel diagram"
+- "refraction light prism spectrum"
+- "nuclear fission uranium atom diagram"
+- "gravitational waves LIGO detector"
+
+For diagrams: add "diagram" or "schematic". For experiments: add "apparatus".
+"""
+    if any(kw in s for kw in ("mathematics", "math", "maths", "-math")):
+        return """
+VISUAL HINTS — for this Mathematics lesson, include 2–3 visual_hints in the
+JSON. Each hint is a Wikimedia Commons search query for a diagram or graph
+that would illustrate a key concept in the lesson.
+
+Good Mathematics queries:
+- "Pythagoras theorem right triangle diagram"
+- "sine cosine wave graph unit circle"
+- "parabola quadratic function graph"
+- "Venn diagram set theory intersection"
+- "normal distribution bell curve statistics"
+- "coordinate plane Cartesian axes"
+- "Fibonacci spiral golden ratio"
+
+Prefer geometric diagrams, labelled graphs, and visualisations over
+abstract notation. Add "diagram" or "graph" to improve image relevance.
+"""
     return ""
 
 
@@ -328,6 +639,7 @@ You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no 
 {_FORMATTING_GUIDELINES}
 {_subject_guidelines(subject)}
 {_diagram_block(diagram_emphasis)}
+{_visual_hints_block(subject)}
 The JSON must exactly match this schema:
 
 {{
@@ -359,6 +671,13 @@ The JSON must exactly match this schema:
   ],
   "key_points": ["<concise key takeaway 1>", "<concise key takeaway 2>", "..."],
   "learning_objectives": ["<objective 1>", "<objective 2>", "..."],
+  "visual_hints": [
+    {{
+      "query": "<specific Wikimedia Commons search query — topic-specific, not generic>",
+      "caption": "<5–10 word descriptive caption for the image>",
+      "placement": "<one of: Introduction | Core Concepts | Worked Examples | Real-World Applications | Summary>"
+    }}
+  ],
   "reading_level": "<e.g., Grade {grade} reading level>",
   "estimated_duration_minutes": <integer between 30 and 50>,
   "language": "{lang}",
@@ -372,6 +691,7 @@ Requirements:
 - Each section body must be substantive — at least 2 full paragraphs or equivalent structured content
 - key_points: 4–8 concise bullet-style takeaways (not duplicating sections verbatim)
 - learning_objectives: 3–5 items starting with action verbs (e.g., "Explain...", "Calculate...", "Identify...")
+- visual_hints: 2–3 items for Commerce, Biology, History, Chemistry, Physics, Mathematics, Geography, Political Science, and Psychology subjects; empty array [] for all others. Queries must be specific enough to return on-topic Wikimedia Commons images.
 - synopsis: engaging and age-appropriate 2–3 sentence summary
 - Do NOT include any text outside the JSON object
 

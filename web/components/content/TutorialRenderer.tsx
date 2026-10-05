@@ -66,7 +66,9 @@ export function TutorialRenderer({ tutorial }: TutorialRendererProps) {
           </div>
           <ul className="font-heading list-disc space-y-1 pl-5 text-sm text-amber-900">
             {tutorial.common_mistakes.map((m, i) => (
-              <li key={i}><SBMarkdownInline>{m}</SBMarkdownInline></li>
+              <li key={i}>
+                <SBMarkdownInline>{m}</SBMarkdownInline>
+              </li>
             ))}
           </ul>
         </aside>

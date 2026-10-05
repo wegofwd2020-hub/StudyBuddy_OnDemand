@@ -44,6 +44,7 @@ from src.content.schemas import (
     ReportRequest,
     ScenarioResponse,
     TutorialResponse,
+    WikimediaImageResult,
 )
 from src.content.service import (
     check_content_block,
@@ -130,6 +131,7 @@ def _normalize_lesson(data: dict) -> dict:
         # New rich format — sections and key_points are already correct shape
         base["sections"] = data["sections"]
         base["key_points"] = data.get("key_points") or data.get("key_concepts", [])
+        base["visual_hints"] = data.get("visual_hints", [])
         return base
 
     # Legacy minimal format: synthesize sections from available metadata fields
@@ -843,3 +845,108 @@ async def get_app_version(
         min_version=row["min_version"],
         latest_version=row["latest_version"],
     )
+
+
+# ── GET /content/visuals/wikimedia ────────────────────────────────────────────
+
+_WIKIMEDIA_API = "https://commons.wikimedia.org/w/api.php"
+_WIKIMEDIA_CACHE_TTL = 86_400  # 24 h
+_WIKIMEDIA_HEADERS = {
+    "User-Agent": "StudyBuddy/1.0 (https://usestudybuddy.com; wegofwd2020@gmail.com) httpx/0.28.1"
+}
+
+
+def _strip_html(text: str) -> str:
+    import html as _h
+
+    return re.sub(r"<[^>]+>", "", _h.unescape(text or "")).strip()
+
+
+@router.get("/content/visuals/wikimedia", response_model=WikimediaImageResult)
+async def get_wikimedia_image(
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+    query: str = Query(..., min_length=3, max_length=200),
+):
+    """
+    Proxy a Wikimedia Commons image search with 24-hour Redis cache.
+
+    Returns the first freely-licensed image matching the query.
+    The frontend calls this once per visual_hint emitted by the pipeline.
+    """
+    import hashlib
+    import json as _json
+
+    import httpx
+
+    from src.content.schemas import WikimediaImageResult as _W
+
+    redis = get_redis(request)
+    cache_key = f"wikimedia:v1:{hashlib.sha256(query.encode()).hexdigest()[:16]}"
+
+    cached = await redis.get(cache_key)
+    if cached:
+        return _W(**_json.loads(cached))
+
+    params = {
+        "action": "query",
+        "generator": "search",
+        "gsrsearch": f"{query} filetype:bitmap",
+        "gsrnamespace": "6",
+        "gsrlimit": "5",
+        "prop": "imageinfo",
+        "iiprop": "url|extmetadata|size",
+        "iiurlwidth": "800",
+        "format": "json",
+        "origin": "*",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=8.0, headers=_WIKIMEDIA_HEADERS) as client:
+            resp = await client.get(_WIKIMEDIA_API, params=params)
+            resp.raise_for_status()
+            body = resp.json()
+    except Exception as exc:
+        log.warning("wikimedia_fetch_failed query=%r error=%s", query, exc)
+        raise HTTPException(
+            status_code=502,
+            detail={"error": "upstream_error", "detail": "Wikimedia unavailable."},
+        )
+
+    pages = body.get("query", {}).get("pages", {})
+    result = None
+    _image_exts = (".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp")
+    for page in pages.values():
+        info_list = page.get("imageinfo", [])
+        if not info_list:
+            continue
+        info = info_list[0]
+        url = info.get("url", "")
+        if not url:
+            continue
+        url_path = url.split("?")[0].lower()
+        if not url_path.endswith(_image_exts):
+            continue
+        meta = info.get("extmetadata", {})
+        license_name = meta.get("LicenseShortName", {}).get("value", "")
+        if "©" in license_name:
+            continue
+        artist = _strip_html(meta.get("Artist", {}).get("value", ""))
+        result = _W(
+            url=url,
+            thumbnail_url=info.get("thumburl") or url,
+            title=page.get("title", "").replace("File:", ""),
+            attribution=artist or "Wikimedia Commons",
+            license=license_name or "Unknown",
+        )
+        break
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "not_found", "detail": "No image found for this query."},
+        )
+
+    await redis.set(cache_key, _json.dumps(result.model_dump()), ex=_WIKIMEDIA_CACHE_TTL)
+    log.info("wikimedia_image_served query=%r title=%r", query, result.title)
+    return result

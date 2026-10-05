@@ -8,7 +8,10 @@ class StubAuth0Client {
   }
 }
 
+const nullClient = { getSession: async () => null } as unknown as Auth0Client;
+
 export function getAuth0() {
+  if (!process.env.AUTH0_DOMAIN) return nullClient;
   if (!auth0) {
     const domain = process.env.AUTH0_DOMAIN;
     // Skip Auth0 if domain is invalid (localhost, empty, etc.)

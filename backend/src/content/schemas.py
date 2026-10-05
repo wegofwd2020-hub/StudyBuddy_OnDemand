@@ -16,6 +16,12 @@ class LessonSection(BaseModel):
     body: str
 
 
+class VisualHint(BaseModel):
+    query: str
+    caption: str
+    placement: str
+
+
 class LessonResponse(BaseModel):
     unit_id: str
     title: str
@@ -24,11 +30,23 @@ class LessonResponse(BaseModel):
     lang: str
     sections: list[LessonSection]
     key_points: list[str]
+    visual_hints: list[VisualHint] = []
     has_audio: bool = False
     # Pipeline metadata (optional — not rendered by the frontend)
     generated_at: str | None = None
     model: str | None = None
     content_version: int | None = None
+
+
+# ── Wikimedia proxy ───────────────────────────────────────────────────────────
+
+
+class WikimediaImageResult(BaseModel):
+    url: str
+    thumbnail_url: str
+    title: str
+    attribution: str
+    license: str
 
 
 # ── Quiz ──────────────────────────────────────────────────────────────────────

@@ -1,12 +1,15 @@
 import type { LessonContent } from "@/lib/types/api";
 import { CheckCircle2 } from "lucide-react";
 import { SBMarkdown, SBMarkdownInline } from "@/components/content/Markdown";
+import { WikimediaVisual } from "@/components/content/WikimediaVisual";
 
 interface LessonRendererProps {
   lesson: LessonContent;
 }
 
 export function LessonRenderer({ lesson }: LessonRendererProps) {
+  const hints = lesson.visual_hints ?? [];
+
   return (
     <article className="font-heading rounded-lg border border-gray-300 bg-stone-50 p-6 shadow-md">
       <h1 className="mb-6 text-2xl font-bold text-gray-900">{lesson.title}</h1>
@@ -15,6 +18,11 @@ export function LessonRenderer({ lesson }: LessonRendererProps) {
         <section key={i} className="mb-8">
           <h2 className="mb-3 text-lg font-semibold text-gray-800">{section.heading}</h2>
           <SBMarkdown>{section.body}</SBMarkdown>
+          {hints
+            .filter((h) => h.placement === section.heading)
+            .map((h, j) => (
+              <WikimediaVisual key={j} hint={h} />
+            ))}
         </section>
       ))}
 
