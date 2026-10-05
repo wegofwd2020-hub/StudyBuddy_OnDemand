@@ -1,3 +1,5 @@
+# DEPRECATED — superseded by deploy/mambakkam/overrides.yml
+# Use deploy/mambakkam/deploy.sh instead of this file.
 # =============================================================================
 # StudyBuddy OnDemand — Docker Compose: Demo (Hetzner) override
 #

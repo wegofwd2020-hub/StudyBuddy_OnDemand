@@ -1,3 +1,5 @@
+# DEPRECATED — superseded by deploy/vaganam/overrides.yml
+# Use deploy/vaganam/start.sh instead of this file.
 # =============================================================================
 # StudyBuddy OnDemand — Local Host-DB Override
 #

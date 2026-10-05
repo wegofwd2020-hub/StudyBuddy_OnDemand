@@ -1,0 +1,38 @@
+# =============================================================================
+# StudyBuddy OnDemand — Vaganam local dev overrides
+#
+# This machine's dev instance. Port 8001 (8000 occupied by Ghostscript).
+#
+# Usage (from project root):
+#   deploy/vaganam/start.sh
+#
+# Or manually:
+#   docker compose --project-directory . \
+#     -f docker-compose.yml \
+#     -f deploy/vaganam/overrides.yml \
+#     --env-file .env \
+#     up -d
+# =============================================================================
+
+services:
+
+  api:
+    ports:
+      - "127.0.0.1:8001:8000"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@pgbouncer:5432/studybuddy
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      ENVIRONMENT: vaganam
+
+  web:
+    ports:
+      - "3000:3000"
+    environment:
+      AUTH0_DOMAIN: localhost
+      AUTH0_CLIENT_ID: dev_client_vaganam
+      AUTH0_CLIENT_SECRET: dev_secret_vaganam
+      AUTH0_SECRET: dev_secret_key_vaganam
+      APP_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:8001/api/v1
+      NEXT_PUBLIC_CDN_URL: http://localhost:8001
+      INTERNAL_API_URL: http://api:8000/api/v1

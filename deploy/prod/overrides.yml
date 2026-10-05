@@ -1,0 +1,23 @@
+# =============================================================================
+# StudyBuddy OnDemand — Production overrides
+#
+# PLACEHOLDER — configure before first deploy.
+#
+# Usage:
+#   docker compose --project-directory . \
+#     -f docker-compose.yml \
+#     -f deploy/prod/overrides.yml \
+#     --env-file .env.prod \
+#     up -d
+# =============================================================================
+
+# TODO: model after deploy/mambakkam/overrides.yml with:
+#   - Real domain in NEXT_PUBLIC_API_URL / NEXT_PUBLIC_APP_URL
+#   - PgBouncer enabled (prod traffic warrants connection pooling)
+#   - celery-pipeline enabled if pipeline runs on prod box
+#   - Sentry DSN set (SENTRY_ENVIRONMENT: production)
+#   - GUNICORN_WORKERS tuned to server CPU count (2*N+1)
+#   - Redis AOF persistence confirmed (appendonly yes)
+#   - CDN/S3 for content store (CONTENT_STORE_PATH → S3 mount or presigned URLs)
+
+services: {}

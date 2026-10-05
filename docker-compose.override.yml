@@ -1,12 +1,23 @@
+# Auto-loaded by Docker Compose on this machine (vaganam).
+# Full config lives in deploy/vaganam/overrides.yml.
+# Use deploy/vaganam/start.sh for the canonical launch command.
+
 services:
   api:
+    ports:
+      - "127.0.0.1:8001:8000"
     environment:
-      DATABASE_URL: postgresql://studybuddy:studybuddy_dev@pgbouncer:5432/studybuddy
-      REDIS_URL: redis://:studybuddy_dev@redis:6379/0
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD:-studybuddy_dev}@pgbouncer:5432/studybuddy
+      REDIS_URL: redis://:${REDIS_PASSWORD:-studybuddy_dev}@redis:6379/0
+      ENVIRONMENT: vaganam
 
   web:
     environment:
       AUTH0_DOMAIN: localhost
-      AUTH0_CLIENT_ID: demo_client_localhost
-      AUTH0_CLIENT_SECRET: demo_secret_localhost
-      AUTH0_SECRET: demo_secret_key_localhost
+      AUTH0_CLIENT_ID: dev_client_vaganam
+      AUTH0_CLIENT_SECRET: dev_secret_vaganam
+      AUTH0_SECRET: dev_secret_key_vaganam
+      APP_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:8001/api/v1
+      NEXT_PUBLIC_CDN_URL: http://localhost:8001
+      INTERNAL_API_URL: http://api:8000/api/v1
