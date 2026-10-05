@@ -186,13 +186,15 @@ async def main() -> None:
 
     # ── School subscription ───────────────────────────────────────────────────
     existing_sub = await conn.fetchrow(
-        "SELECT id FROM school_subscriptions WHERE school_id = $1", SCHOOL["school_id"]
+        "SELECT school_subscription_id FROM school_subscriptions WHERE school_id = $1", SCHOOL["school_id"]
     )
     if not existing_sub:
         await conn.execute(
             "INSERT INTO school_subscriptions "
-            "(school_id, plan, status, started_at, expires_at) "
-            "VALUES ($1,'school_annual','active',now(), now() + interval '365 days')",
+            "(school_id, plan, status, stripe_customer_id, stripe_subscription_id, "
+            " current_period_end) "
+            "VALUES ($1,'enterprise','active','dev_cus_vaganam','dev_sub_vaganam',"
+            " now() + interval '365 days')",
             SCHOOL["school_id"],
         )
         print("  created school subscription (1 year)")

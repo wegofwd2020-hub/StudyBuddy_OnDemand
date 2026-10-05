@@ -14,17 +14,45 @@
 #     up -d
 # =============================================================================
 
+# Build network: host — Docker NAT is broken on this machine (iptables/nftables
+# conflict); host network gives build steps direct access to the host's working
+# internet stack so apt-get update and npm install resolve DNS correctly.
+x-build-host-net: &build-host-net
+  network: host
+
 services:
 
+  migrate:
+    build:
+      network: host
+
   api:
-    ports:
-      - "127.0.0.1:8001:8000"
+    build:
+      network: host
     environment:
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@pgbouncer:5432/studybuddy
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       ENVIRONMENT: vaganam
 
+  celery-worker:
+    build:
+      network: host
+
+  celery-pipeline:
+    build:
+      network: host
+
+  celery-beat-primary:
+    build:
+      network: host
+
+  celery-beat-standby:
+    build:
+      network: host
+
   web:
+    build:
+      network: host
     ports:
       - "3000:3000"
     environment:

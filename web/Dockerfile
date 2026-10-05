@@ -5,7 +5,7 @@
 # =============================================================================
 
 # Stage 1: install dependencies (cached unless package*.json changes)
-FROM node:20-alpine AS deps
+FROM node:20-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
 # --legacy-peer-deps: npm install (lenient) and npm ci (strict) disagree on
@@ -15,7 +15,7 @@ COPY package.json package-lock.json* ./
 RUN npm ci --prefer-offline --legacy-peer-deps
 
 # Stage 2: build the Next.js application
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -44,7 +44,7 @@ RUN npm run build && mkdir -p .next/public && \
 # It is suitable ONLY for local development and demo environments without Auth0 credentials.
 # For production: restore production build (npm run build + node server.js) with non-root user.
 # See: web/Dockerfile.production for the secure production runtime.
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public

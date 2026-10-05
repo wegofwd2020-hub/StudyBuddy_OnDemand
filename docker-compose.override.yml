@@ -3,15 +3,37 @@
 # Use deploy/vaganam/start.sh for the canonical launch command.
 
 services:
+  migrate:
+    build:
+      network: host
+
   api:
-    ports:
-      - "127.0.0.1:8001:8000"
+    build:
+      network: host
     environment:
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD:-studybuddy_dev}@pgbouncer:5432/studybuddy
       REDIS_URL: redis://:${REDIS_PASSWORD:-studybuddy_dev}@redis:6379/0
       ENVIRONMENT: vaganam
 
+  celery-worker:
+    build:
+      network: host
+
+  celery-pipeline:
+    build:
+      network: host
+
+  celery-beat-primary:
+    build:
+      network: host
+
+  celery-beat-standby:
+    build:
+      network: host
+
   web:
+    build:
+      network: host
     environment:
       AUTH0_DOMAIN: localhost
       AUTH0_CLIENT_ID: dev_client_vaganam
