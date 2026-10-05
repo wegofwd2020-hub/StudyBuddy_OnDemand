@@ -34,6 +34,7 @@ services:
   web:
     build:
       network: host
+    command: ["node_modules/.bin/next", "dev", "--webpack"]
     environment:
       AUTH0_DOMAIN: localhost
       AUTH0_CLIENT_ID: dev_client_vaganam
