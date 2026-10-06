@@ -149,26 +149,28 @@ export default function SignInPage() {
 
     try {
       // Try universal login first (handles local, demo_student, demo_teacher)
-      console.log("[signin] attempting universalLogin...");
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[signin] attempting universalLogin...");
+      }
       const res = await universalLogin({ email: emailVal, password: passwordVal });
-      console.log("[signin] universalLogin success:", { auth_track: res.auth_track, role: res.role, first_login: res.first_login });
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[signin] universalLogin success:", { auth_track: res.auth_track, role: res.role, first_login: res.first_login });
+      }
       persistSession(res, emailVal);
       setRemembered(rememberMe);
       markSessionAlive();
       const next = new URLSearchParams(window.location.search).get("next");
       const destination = destinationFor(res.auth_track, res.role, res.first_login, next);
-      console.log("[signin] redirecting to:", destination);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[signin] redirecting to:", destination);
+      }
       await router.push(destination);
-      console.log("[signin] push completed");
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string; toString?: () => string };
+      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string };
       const status = axiosErr?.response?.status;
-      console.error("[signin] login error:", {
-        status,
-        message: axiosErr?.message,
-        errorString: axiosErr?.toString?.(),
-        fullError: JSON.stringify(axiosErr, null, 2)
-      });
+      if (process.env.NODE_ENV !== "production") {
+        console.error("[signin] login error:", { status, message: axiosErr?.message });
+      }
 
       if (status === 401) {
         setError("Incorrect email or password.");
