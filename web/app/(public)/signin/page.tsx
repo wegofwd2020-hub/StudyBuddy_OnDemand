@@ -128,8 +128,14 @@ export default function SignInPage() {
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
-    console.log("[signin:handleSubmit] ENTER", { target: e.target?.constructor?.name });
-    e.preventDefault();
+    console.log("[signin:handleSubmit] START event:", e.type);
+    try {
+      e.preventDefault();
+      console.log("[signin:handleSubmit] preventDefault() success");
+    } catch (stopErr) {
+      console.error("[signin:handleSubmit] preventDefault() error:", stopErr);
+      throw stopErr;
+    }
     setError(null);
     setLoading(true);
 
