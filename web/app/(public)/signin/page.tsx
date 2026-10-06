@@ -128,6 +128,7 @@ export default function SignInPage() {
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
+    console.log("[signin:handleSubmit] ENTER", { target: e.target?.constructor?.name });
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -135,34 +136,38 @@ export default function SignInPage() {
     const emailVal = email;
     const passwordVal = password;
 
+    console.log("[signin:validation] email:", emailVal, "password:", passwordVal ? "***" : "");
+
     if (!emailVal) {
       setError("Email is required.");
       setLoading(false);
+      console.log("[signin:validation] email missing");
       return;
     }
 
     if (!passwordVal) {
       setError("Password is required.");
       setLoading(false);
+      console.log("[signin:validation] password missing");
       return;
     }
 
     try {
       // Try universal login first (handles local, demo_student, demo_teacher)
-      console.log("[signin] attempting universalLogin...", { email: emailVal });
+      console.log("[signin:api] calling universalLogin...", { email: emailVal });
       const res = await universalLogin({ email: emailVal, password: passwordVal });
-      console.log("[signin] universalLogin success:", { auth_track: res.auth_track, role: res.role, first_login: res.first_login });
+      console.log("[signin:api:success]", { auth_track: res.auth_track, role: res.role, first_login: res.first_login });
       persistSession(res, emailVal);
       setRemembered(rememberMe);
       markSessionAlive();
       const next = new URLSearchParams(window.location.search).get("next");
       const destination = destinationFor(res.auth_track, res.role, res.first_login, next);
-      console.log("[signin] redirecting to:", destination);
+      console.log("[signin:redirect]", destination);
       await router.push(destination);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string };
       const status = axiosErr?.response?.status;
-      console.error("[signin] login error:", { status, message: axiosErr?.message, url: (axiosErr?.response as any)?.config?.url });
+      console.error("[signin:api:error]", { status, message: axiosErr?.message, url: (axiosErr?.response as any)?.config?.url, err });
 
       if (status === 401) {
         setError("Incorrect email or password.");
