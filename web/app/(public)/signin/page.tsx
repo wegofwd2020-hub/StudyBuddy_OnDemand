@@ -148,14 +148,20 @@ export default function SignInPage() {
     }
 
     try {
+      // Try universal login first (handles local, demo_student, demo_teacher)
       const res = await universalLogin({ email: emailVal, password: passwordVal });
+      console.log("[signin] universalLogin success:", { auth_track: res.auth_track, role: res.role, first_login: res.first_login });
       persistSession(res, emailVal);
       setRemembered(rememberMe);
       markSessionAlive();
       const next = new URLSearchParams(window.location.search).get("next");
-      router.push(destinationFor(res.auth_track, res.role, res.first_login, next));
+      const destination = destinationFor(res.auth_track, res.role, res.first_login, next);
+      console.log("[signin] redirecting to:", destination);
+      router.push(destination);
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
+      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string };
+      const status = axiosErr?.response?.status;
+      console.error("[signin] login failed:", { status, error: axiosErr?.message, response: axiosErr?.response?.data });
       if (status === 401) {
         setError("Incorrect email or password.");
       } else if (status === 403) {
