@@ -140,11 +140,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
-            sudo /usr/bin/git -C /opt/studybuddy \
-              -c 'url.https://x-access-token:${GH_TOKEN}@github.com/.insteadOf=https://github.com/' \
-              pull --ff-only origin main
-          "
+          # Token piped via stdin → temp file (0600); never in any argv or sudo log
+          printf 'https://x-access-token:%s@github.com\n' "${GH_TOKEN}" \
+            | ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
+                'f=$(mktemp /tmp/.git-creds-XXXXXX) && chmod 600 "$f" && cat > "$f" \
+                 && sudo /usr/bin/git -C /opt/studybuddy \
+                      -c "credential.helper=store --file $f" \
+                      pull --ff-only origin main \
+                 ; rm -f "$f"'
 
       - name: Prune unused Docker images + build cache
         run: |
