@@ -160,10 +160,12 @@ jobs:
           SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
+            echo \"DEBUG whoami=\$(whoami) HOME=\$HOME\" && \
             /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-api:${SHORT_SHA} && \
             /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} && \
             printf 'DEPLOY_SHA=%s\n' ${SHORT_SHA} | tee /home/deploy/.env.deploy && \
             echo '--- env file on disk ---' && cat /home/deploy/.env.deploy && \
+            ls -la /home/deploy/.env.deploy && \
             cd /opt/studybuddy && \
             sudo /usr/bin/docker compose \
               -f docker-compose.yml \
