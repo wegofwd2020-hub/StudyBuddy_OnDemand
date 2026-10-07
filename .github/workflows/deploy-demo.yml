@@ -99,6 +99,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_DEMO_MODE=true
             NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}
+            INJECT_BUILD_ID=${{ steps.sha.outputs.short }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
 
@@ -134,7 +135,7 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ steps.sha.outputs.short }}' > /tmp/deploy_build_id.env && \
+            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ needs.build-and-push.outputs.short_sha }}' > /tmp/deploy_build_id.env && \
             sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
@@ -166,7 +167,7 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ steps.sha.outputs.short }}' > /tmp/deploy_build_id.env && \
+            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ needs.build-and-push.outputs.short_sha }}' > /tmp/deploy_build_id.env && \
             sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
