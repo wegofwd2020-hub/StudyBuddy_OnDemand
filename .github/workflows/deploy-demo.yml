@@ -144,33 +144,30 @@ jobs:
             /usr/bin/docker builder prune -af --filter 'until=24h'
           "
 
-      # Pull api + web by their immutable SHA tag, then retag as :latest locally.
-      # GHCR's :latest manifest is eventually consistent after a push — there is
-      # a race window where `docker pull :latest` or `compose up --pull=always`
-      # returns the previous digest. SHA tags are content-addressed and available
-      # immediately once the push completes, so pulling by SHA and retagging
-      # sidesteps the propagation race entirely.
-      - name: Pre-pull new images by SHA (bypasses GHCR :latest propagation lag)
+      # Pull api + web by their immutable SHA tag. SHA tags are immediately
+      # consistent after a push; :latest can lag by minutes (GHCR propagation).
+      # overrides.yml uses image: .../api:${DEPLOY_SHA:-latest} so compose
+      # receives a tag it has never started, guaranteeing container recreation.
+      - name: Pre-pull new images by SHA
         env:
           SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-api:${SHORT_SHA} && \
-            /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} && \
-            /usr/bin/docker tag ghcr.io/wegofwd2020-hub/studybuddy-api:${SHORT_SHA} ghcr.io/wegofwd2020-hub/studybuddy-api:latest && \
-            /usr/bin/docker tag ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} ghcr.io/wegofwd2020-hub/studybuddy-web:latest
+            /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA}
           "
 
-      # --pull=never: overrides `pull_policy: always` in overrides.yml. Without
-      # this flag, compose re-pulls :latest from GHCR even though the SHA-pull
-      # step already tagged the correct digest locally — and GHCR's :latest can
-      # still be behind due to propagation lag, silently reverting the retag.
-      # The pre-pull step guarantees :latest is correct; --pull=never locks it.
+      # DEPLOY_SHA is interpolated into overrides.yml image tags at compose time.
+      # --pull=never: images are already local from pre-pull; prevents compose
+      # from hitting GHCR again despite pull_policy: always in overrides.yml.
+      # Compose sees a new tag name (:$SHA vs previous :$OLD_SHA) and recreates.
       - name: Roll services (recreate containers on digest change)
+        env:
+          SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            sudo /usr/bin/docker compose \
+            sudo env DEPLOY_SHA=${SHORT_SHA} /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \

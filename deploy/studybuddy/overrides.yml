@@ -48,7 +48,7 @@ services:
       replicas: 0
 
   migrate:
-    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
     pull_policy: always
     logging: *logging-cap
@@ -65,7 +65,7 @@ services:
         condition: service_healthy
 
   api:
-    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
     pull_policy: always
     restart: always
@@ -93,7 +93,7 @@ services:
       - /data/content:/data/content
 
   celery-worker:
-    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
     pull_policy: always
     restart: always
@@ -122,7 +122,7 @@ services:
         condition: service_healthy
 
   celery-beat-primary:
-    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
     pull_policy: always
     restart: always
@@ -151,7 +151,7 @@ services:
         condition: service_healthy
 
   web:
-    image: ghcr.io/wegofwd2020-hub/studybuddy-web:latest
+    image: ghcr.io/wegofwd2020-hub/studybuddy-web:${DEPLOY_SHA:-latest}
     build: !reset null
     pull_policy: always
     restart: always
