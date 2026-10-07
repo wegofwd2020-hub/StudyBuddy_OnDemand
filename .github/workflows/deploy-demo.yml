@@ -162,7 +162,8 @@ jobs:
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-api:${SHORT_SHA} && \
             /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} && \
-            echo DEPLOY_SHA=${SHORT_SHA} > /home/deploy/.env.deploy && \
+            printf 'DEPLOY_SHA=%s\n' ${SHORT_SHA} | tee /home/deploy/.env.deploy && \
+            echo '--- env file on disk ---' && cat /home/deploy/.env.deploy && \
             cd /opt/studybuddy && \
             sudo /usr/bin/docker compose \
               -f docker-compose.yml \
