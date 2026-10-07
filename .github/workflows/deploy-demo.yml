@@ -137,9 +137,14 @@ jobs:
           ssh-private-key: ${{ secrets.DEMO_VPS_SSH_KEY }}
 
       - name: Pull latest code on VPS
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
-            'cd /opt/studybuddy && sudo /usr/bin/git -C /opt/studybuddy pull --ff-only origin main'
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
+            sudo /usr/bin/git -C /opt/studybuddy \
+              -c 'url.https://x-access-token:${GH_TOKEN}@github.com/.insteadOf=https://github.com/' \
+              pull --ff-only origin main
+          "
 
       - name: Prune unused Docker images + build cache
         run: |
