@@ -37,13 +37,6 @@ ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
 ARG NODE_ENV_FOR_CSP="development"
 ENV NODE_ENV_FOR_CSP=$NODE_ENV_FOR_CSP
 RUN npm run build
-# Separate layer: cache key depends only on INJECT_BUILD_ID, not npm build output.
-# npm run build above can hit GHA cache when no source changed; this tiny echo
-# always rebuilds because INJECT_BUILD_ID carries the commit SHA and changes
-# every deploy. Served by app/build-id/route.ts for deploy verification (#583).
-ARG INJECT_BUILD_ID=""
-RUN mkdir -p .next/public && \
-    echo "{\"build_id\":\"${INJECT_BUILD_ID:-$NEXT_PUBLIC_BUILD_ID}\"}" > .next/public/build-id.json
 
 # Stage 3: dev mode runtime — uses npm run dev for fail-open Auth0 middleware
 # ⚠️  SECURITY NOTE: This stage runs in development mode with fail-open authentication.
@@ -61,4 +54,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+# INJECT_BUILD_ID must come AFTER all COPY instructions so it is never overwritten.
+# It is written here (runner stage) rather than builder so that GHA mode=max cache
+# cannot restore a stale manifest for commits where web source is unchanged. CI uses
+# no-cache-filter: runner to guarantee this layer always re-runs. Served by
+# app/build-id/route.ts for deploy verification (#583).
+ARG INJECT_BUILD_ID="dev"
+RUN mkdir -p .next/public && \
+    echo "{\"build_id\":\"${INJECT_BUILD_ID}\"}" > .next/public/build-id.json
 CMD ["npm", "run", "dev"]

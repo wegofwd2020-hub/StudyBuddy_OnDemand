@@ -98,8 +98,14 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/studybuddy-web:${{ steps.sha.outputs.short }}
           build-args: |
             NEXT_PUBLIC_DEMO_MODE=true
-            NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}
             INJECT_BUILD_ID=${{ steps.sha.outputs.short }}
+          # no-cache-filter: runner forces the runner stage to rebuild every deploy.
+          # GHA mode=max caches the entire final image manifest; when web source is
+          # unchanged across commits, it restores the old manifest including the
+          # stale INJECT_BUILD_ID layer. no-cache-filter bypasses that and re-runs
+          # the runner stage (cheap: just COPYs + one echo) so build-id.json always
+          # carries the current commit SHA. Builder stage (npm build) still caches.
+          no-cache-filter: runner
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
 
