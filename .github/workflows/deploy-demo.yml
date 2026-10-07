@@ -131,24 +131,23 @@ jobs:
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
             'cd /opt/studybuddy && sudo /usr/bin/git -C /opt/studybuddy pull --ff-only origin main'
 
-      - name: Pull new images + roll services
+      # --pull=always: compose re-pulls every image before starting and
+      # recreates containers whose image digest changed. The default
+      # (--pull=missing) skips re-pulling when the tag already exists
+      # locally, so `docker compose pull` + `up -d` leaves old containers
+      # running even after a new image is pushed to GHCR. --pull=always
+      # is the one-step equivalent that always detects image updates.
+      # NEXT_PUBLIC_BUILD_ID is baked into the image at build time (not a
+      # runtime env concern), so no second env file is needed here.
+      - name: Roll services (pull latest images + recreate on digest change)
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ needs.build-and-push.outputs.short_sha }}' > /tmp/deploy_build_id.env && \
             sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
-              --env-file /tmp/deploy_build_id.env \
-              pull && \
-            sudo /usr/bin/docker compose \
-              -f docker-compose.yml \
-              -f deploy/studybuddy/overrides.yml \
-              --env-file .env.demo \
-              --env-file /tmp/deploy_build_id.env \
-              up -d --remove-orphans && \
-            rm -f /tmp/deploy_build_id.env
+              up -d --pull=always --remove-orphans
           "
 
       # `docker compose up -d` only recreates services whose spec changed.
@@ -167,14 +166,11 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ needs.build-and-push.outputs.short_sha }}' > /tmp/deploy_build_id.env && \
             sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
-              --env-file /tmp/deploy_build_id.env \
-              up -d --force-recreate --no-deps nginx && \
-            rm -f /tmp/deploy_build_id.env
+              up -d --force-recreate --no-deps nginx
           "
 
       # The heart of #583: a green run used to prove only that commands exited 0.
