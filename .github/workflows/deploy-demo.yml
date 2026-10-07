@@ -134,17 +134,20 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
+            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ steps.sha.outputs.short }}' > /tmp/deploy_build_id.env && \
             sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
+              --env-file /tmp/deploy_build_id.env \
               pull && \
-            sudo NEXT_PUBLIC_BUILD_ID="$NEXT_PUBLIC_BUILD_ID" /usr/bin/docker compose \
+            sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
-              up -d --remove-orphans
+              --env-file /tmp/deploy_build_id.env \
+              up -d --remove-orphans && \
+            rm -f /tmp/deploy_build_id.env
           "
 
       # `docker compose up -d` only recreates services whose spec changed.
@@ -163,12 +166,14 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
-            sudo NEXT_PUBLIC_BUILD_ID="$NEXT_PUBLIC_BUILD_ID" /usr/bin/docker compose \
+            printf 'NEXT_PUBLIC_BUILD_ID=%s\n' '${{ steps.sha.outputs.short }}' > /tmp/deploy_build_id.env && \
+            sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
-              up -d --force-recreate --no-deps nginx
+              --env-file /tmp/deploy_build_id.env \
+              up -d --force-recreate --no-deps nginx && \
+            rm -f /tmp/deploy_build_id.env
           "
 
       # The heart of #583: a green run used to prove only that commands exited 0.
