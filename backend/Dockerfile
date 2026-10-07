@@ -1,14 +1,5 @@
-FROM python:3.11-slim
-
-# Build identifier, so a deploy can prove WHICH commit is running (#583).
-# Surfaced at GET /api/v1/health as `build`.
-#
-# Deliberately NOT APP_VERSION: .env.demo sets that to the human label "demo",
-# and a compose env_file overrides an image ENV — so reusing it would leave the
-# check comparing against "demo" forever and failing every deploy.
-ARG BUILD_ID="dev"
-ENV BUILD_ID=$BUILD_ID
-
+# Stage 1: system deps + Python packages (cached unless requirements.txt changes)
+FROM python:3.11-slim AS deps
 WORKDIR /app
 
 # System dependencies (git for the wegofwd-llm git+ pip dep; libpq/gcc for asyncpg;
@@ -27,17 +18,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies first (layer cache)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Stage 2: application runner — always rebuilt by CI via no-cache-filters: runner
+# so BUILD_ID is never served from a stale GHA mode=max manifest (#583).
+FROM deps AS runner
+WORKDIR /app
+
 COPY . .
 
-# Create content store directory
 RUN mkdir -p /data/content
 
-# Run as non-root user
+# Build identifier surfaced at GET /api/v1/health as `build`.
+# Deliberately NOT APP_VERSION: .env.demo sets that to the human label "demo",
+# and a compose env_file overrides an image ENV — so reusing it would leave the
+# check comparing against "demo" forever.
+# Must come after all COPY instructions so it is never overwritten by a cached layer.
+ARG BUILD_ID="dev"
+ENV BUILD_ID=$BUILD_ID
+
 RUN useradd -m -u 1000 studybuddy && chown -R studybuddy:studybuddy /app /data
 USER studybuddy
 

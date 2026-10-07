@@ -85,6 +85,10 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/studybuddy-api:${{ steps.sha.outputs.short }}
           build-args: |
             BUILD_ID=${{ steps.sha.outputs.short }}
+          # no-cache-filters: runner forces the runner stage to rebuild every deploy
+          # so BUILD_ID is never served from a stale GHA mode=max manifest (#583).
+          # deps stage (apt-get + pip) still caches normally.
+          no-cache-filters: runner
           cache-from: type=gha,scope=api
           cache-to: type=gha,scope=api,mode=max
 
