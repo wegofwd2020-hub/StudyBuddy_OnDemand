@@ -138,15 +138,27 @@ jobs:
             /usr/bin/docker builder prune -af --filter 'until=24h'
           "
 
-      # --pull=always: compose re-pulls every image before starting and
-      # recreates containers whose image digest changed. The default
-      # (--pull=missing) skips re-pulling when the tag already exists
-      # locally, so `docker compose pull` + `up -d` leaves old containers
-      # running even after a new image is pushed to GHCR. --pull=always
-      # is the one-step equivalent that always detects image updates.
-      # NEXT_PUBLIC_BUILD_ID is baked into the image at build time (not a
-      # runtime env concern), so no second env file is needed here.
-      - name: Roll services (pull latest images + recreate on digest change)
+      # Pull api + web by their immutable SHA tag, then retag as :latest locally.
+      # GHCR's :latest manifest is eventually consistent after a push — there is
+      # a race window where `docker pull :latest` or `compose up --pull=always`
+      # returns the previous digest. SHA tags are content-addressed and available
+      # immediately once the push completes, so pulling by SHA and retagging
+      # sidesteps the propagation race entirely.
+      - name: Pre-pull new images by SHA (bypasses GHCR :latest propagation lag)
+        env:
+          SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
+        run: |
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
+            /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-api:${SHORT_SHA} && \
+            /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} && \
+            /usr/bin/docker tag ghcr.io/wegofwd2020-hub/studybuddy-api:${SHORT_SHA} ghcr.io/wegofwd2020-hub/studybuddy-api:latest && \
+            /usr/bin/docker tag ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} ghcr.io/wegofwd2020-hub/studybuddy-web:latest
+          "
+
+      # compose up -d (no --pull=always): images are already up-to-date locally
+      # from the SHA-pull step above. compose detects the new :latest digest and
+      # recreates containers whose image changed.
+      - name: Roll services (recreate containers on digest change)
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
@@ -154,7 +166,7 @@ jobs:
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
-              up -d --pull=always --remove-orphans
+              up -d --remove-orphans
           "
 
       # `docker compose up -d` only recreates services whose spec changed.
