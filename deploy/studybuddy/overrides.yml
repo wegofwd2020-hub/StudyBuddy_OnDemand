@@ -50,7 +50,7 @@ services:
   migrate:
     image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
-    pull_policy: always
+    pull_policy: if_not_present
     logging: *logging-cap
     env_file: !override
       - .env.demo
@@ -67,7 +67,7 @@ services:
   api:
     image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
-    pull_policy: always
+    pull_policy: if_not_present
     restart: always
     logging: *logging-cap
     env_file: !override
@@ -95,7 +95,7 @@ services:
   celery-worker:
     image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
-    pull_policy: always
+    pull_policy: if_not_present
     restart: always
     logging: *logging-cap
     env_file: !override
@@ -124,7 +124,7 @@ services:
   celery-beat-primary:
     image: ghcr.io/wegofwd2020-hub/studybuddy-api:${DEPLOY_SHA:-latest}
     build: !reset null
-    pull_policy: always
+    pull_policy: if_not_present
     restart: always
     logging: *logging-cap
     env_file: !override
@@ -153,7 +153,7 @@ services:
   web:
     image: ghcr.io/wegofwd2020-hub/studybuddy-web:${DEPLOY_SHA:-latest}
     build: !reset null
-    pull_policy: always
+    pull_policy: if_not_present
     restart: always
     logging: *logging-cap
     command: ["npm", "run", "start"]
