@@ -155,9 +155,11 @@ jobs:
             /usr/bin/docker tag ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} ghcr.io/wegofwd2020-hub/studybuddy-web:latest
           "
 
-      # compose up -d (no --pull=always): images are already up-to-date locally
-      # from the SHA-pull step above. compose detects the new :latest digest and
-      # recreates containers whose image changed.
+      # --pull=never: overrides `pull_policy: always` in overrides.yml. Without
+      # this flag, compose re-pulls :latest from GHCR even though the SHA-pull
+      # step already tagged the correct digest locally — and GHCR's :latest can
+      # still be behind due to propagation lag, silently reverting the retag.
+      # The pre-pull step guarantees :latest is correct; --pull=never locks it.
       - name: Roll services (recreate containers on digest change)
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
@@ -166,7 +168,7 @@ jobs:
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
-              up -d --remove-orphans
+              up -d --pull=never --remove-orphans
           "
 
       # `docker compose up -d` only recreates services whose spec changed.
