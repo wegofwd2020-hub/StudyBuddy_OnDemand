@@ -135,12 +135,12 @@ jobs:
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
             export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
-            /usr/bin/docker compose \
+            sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
               pull && \
-            /usr/bin/docker compose \
+            sudo NEXT_PUBLIC_BUILD_ID="$NEXT_PUBLIC_BUILD_ID" /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
@@ -164,7 +164,7 @@ jobs:
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
             export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
-            /usr/bin/docker compose \
+            sudo NEXT_PUBLIC_BUILD_ID="$NEXT_PUBLIC_BUILD_ID" /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
