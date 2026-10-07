@@ -36,8 +36,14 @@ ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
 # Set to "production" when building for production to disable 'unsafe-eval'.
 ARG NODE_ENV_FOR_CSP="development"
 ENV NODE_ENV_FOR_CSP=$NODE_ENV_FOR_CSP
-RUN npm run build && mkdir -p .next/public && \
-    echo "{\"build_id\":\"$NEXT_PUBLIC_BUILD_ID\"}" > .next/public/build-id.json
+RUN npm run build
+# Separate layer: cache key depends only on INJECT_BUILD_ID, not npm build output.
+# npm run build above can hit GHA cache when no source changed; this tiny echo
+# always rebuilds because INJECT_BUILD_ID carries the commit SHA and changes
+# every deploy. Served by app/build-id/route.ts for deploy verification (#583).
+ARG INJECT_BUILD_ID=""
+RUN mkdir -p .next/public && \
+    echo "{\"build_id\":\"${INJECT_BUILD_ID:-$NEXT_PUBLIC_BUILD_ID}\"}" > .next/public/build-id.json
 
 # Stage 3: dev mode runtime — uses npm run dev for fail-open Auth0 middleware
 # ⚠️  SECURITY NOTE: This stage runs in development mode with fail-open authentication.
