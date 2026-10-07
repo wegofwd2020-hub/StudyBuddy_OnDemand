@@ -134,8 +134,8 @@ jobs:
       - name: Prune unused Docker images + build cache
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
-            sudo /usr/bin/docker image prune -af --filter 'until=24h' && \
-            sudo /usr/bin/docker builder prune -af --filter 'until=24h'
+            /usr/bin/docker image prune -af --filter 'until=24h' && \
+            /usr/bin/docker builder prune -af --filter 'until=24h'
           "
 
       # --pull=always: compose re-pulls every image before starting and
