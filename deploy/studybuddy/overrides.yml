@@ -1,0 +1,201 @@
+# =============================================================================
+# StudyBuddy OnDemand — studybuddy server overrides (Hetzner, 77.42.13.139)
+#
+# Layered on top of docker-compose.yml. Deploy with:
+#   deploy/studybuddy/deploy.sh
+#
+# Or manually from the server (/opt/studybuddy):
+#   docker compose --project-directory . \
+#     -f docker-compose.yml \
+#     -f deploy/studybuddy/overrides.yml \
+#     --env-file .env.demo \
+#     up -d
+#
+# What this changes vs. base:
+#   - Pulls images from GHCR (no build on 4 GB RAM VPS)
+#   - Drops PgBouncer + celery-beat-standby + celery-pipeline (demo scale)
+#   - restart: always on all services (self-heal on reboot)
+#   - Nginx on 0.0.0.0:80 → container:8443 (plain HTTP, no TLS)
+#   - Autoheal watches api (~90s wedge recovery)
+#   - Named volumes so `docker compose down` does NOT delete data
+# =============================================================================
+
+x-logging-cap: &logging-cap
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+
+  db:
+    restart: always
+    logging: *logging-cap
+    volumes:
+      - studybuddy_pgdata:/var/lib/postgresql/data
+    ports: []
+
+  redis:
+    restart: always
+    logging: *logging-cap
+    volumes:
+      - studybuddy_redis:/data
+    ports: []
+
+  pgbouncer:
+    profiles: ["never"]
+    deploy:
+      replicas: 0
+
+  migrate:
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    build: !reset null
+    pull_policy: always
+    logging: *logging-cap
+    env_file: !override
+      - .env.demo
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      TEST_DB_URL: ""
+    volumes: !override
+      - /data/content:/data/content
+      - /opt/studybuddy/data:/data
+    depends_on: !override
+      db:
+        condition: service_healthy
+
+  api:
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    build: !reset null
+    pull_policy: always
+    restart: always
+    logging: *logging-cap
+    env_file: !override
+      - .env.demo
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      TEST_DB_URL: ""
+      APP_ENV: staging
+      LOG_LEVEL: INFO
+      GUNICORN_WORKERS: "2"
+    labels:
+      autoheal: "true"
+    ports: !override []
+    depends_on: !override
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes: !override
+      - /data/content:/data/content
+
+  celery-worker:
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    build: !reset null
+    pull_policy: always
+    restart: always
+    logging: *logging-cap
+    env_file: !override
+      - .env.demo
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      TEST_DB_URL: ""
+    depends_on: !override
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes: !override
+      - /data/content:/data/content
+
+  celery-pipeline:
+    profiles: ["never"]
+    deploy:
+      replicas: 0
+    depends_on: !override
+      db:
+        condition: service_healthy
+
+  celery-beat-primary:
+    image: ghcr.io/wegofwd2020-hub/studybuddy-api:latest
+    build: !reset null
+    pull_policy: always
+    restart: always
+    logging: *logging-cap
+    env_file: !override
+      - .env.demo
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      TEST_DB_URL: ""
+    depends_on: !override
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes: !override
+      - /data/content:/data/content
+
+  celery-beat-standby:
+    profiles: ["never"]
+    deploy:
+      replicas: 0
+    depends_on: !override
+      db:
+        condition: service_healthy
+
+  web:
+    image: ghcr.io/wegofwd2020-hub/studybuddy-web:latest
+    build: !reset null
+    pull_policy: always
+    restart: always
+    logging: *logging-cap
+    env_file: !override
+      - .env.demo
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://77.42.13.139/api/v1
+      INTERNAL_API_URL: http://api:8000/api/v1
+      NEXT_PUBLIC_APP_URL: http://77.42.13.139
+      NEXT_PUBLIC_BUILD_ID: ${NEXT_PUBLIC_BUILD_ID:-dev}
+    ports: !override []
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    logging: *logging-cap
+    ports: !override
+      - "0.0.0.0:80:8443"
+    volumes:
+      - ./scripts/demo/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /data/content:/srv/content:ro
+      - /data/sample-visuals:/srv/sample-visuals:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+
+  autoheal:
+    image: willfarrell/autoheal@sha256:147ed822bf5f787f638687c66bb3591b64d73fc4a1640da64c5442608d139878
+    restart: always
+    logging: *logging-cap
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      AUTOHEAL_INTERVAL: "5"
+      AUTOHEAL_START_PERIOD: "60"
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: "20"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  studybuddy_pgdata:
+    name: studybuddy_pgdata
+  studybuddy_redis:
+    name: studybuddy_redis
