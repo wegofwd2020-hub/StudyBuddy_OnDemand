@@ -154,23 +154,26 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-api:${SHORT_SHA} && \
-            /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA}
+            /usr/bin/docker pull ghcr.io/wegofwd2020-hub/studybuddy-web:${SHORT_SHA} && \
+            echo DEPLOY_SHA=${SHORT_SHA} > /tmp/.env.deploy
           "
 
       # DEPLOY_SHA is interpolated into overrides.yml image tags at compose time.
       # --pull=never: images are already local from pre-pull; prevents compose
       # from hitting GHCR again despite pull_policy: always in overrides.yml.
       # Compose sees a new tag name (:$SHA vs previous :$OLD_SHA) and recreates.
+      # DEPLOY_SHA is passed via /tmp/.env.deploy (written in pre-pull step)
+      # rather than `sudo env VAR=... cmd` — the deploy user's sudoers rule
+      # matches `/usr/bin/docker compose *` literally; `sudo env ...` does not.
       - name: Roll services (recreate containers on digest change)
-        env:
-          SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            sudo env DEPLOY_SHA=${SHORT_SHA} /usr/bin/docker compose \
+            sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f deploy/studybuddy/overrides.yml \
               --env-file .env.demo \
+              --env-file /tmp/.env.deploy \
               up -d --pull=never --remove-orphans
           "
 
