@@ -1324,3 +1324,50 @@ async def reset_demo_school(request: Request) -> dict:
         classrooms=summary["classrooms_seeded"],
     )
     return summary
+
+
+# ── DELETE /admin/test-schools/{school_id} ────────────────────────────────────
+
+
+@router.delete(
+    "/admin/test-schools/{school_id}",
+    status_code=204,
+)
+async def delete_test_school(
+    school_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require("demo:reset"))],
+) -> None:
+    """
+    Hard-delete a smoke-test school and all its cascade data.
+
+    Safety: only schools whose name starts with "smoketest-" may be deleted
+    this way.  This endpoint exists solely for the persona smoke-test harness
+    (scripts/smoke/persona_smoke.py) and must never be used against real data.
+
+    Requires: super_admin role.
+    """
+    if admin.get("role") != "super_admin":
+        raise HTTPException(status_code=403, detail="super_admin role required")
+
+    async with get_db(request) as conn:
+        row = await conn.fetchrow(
+            "SELECT school_id, name FROM schools WHERE school_id = $1",
+            school_id,
+        )
+        if not row:
+            raise HTTPException(status_code=404, detail="School not found")
+        if not row["name"].startswith("smoketest-"):
+            raise HTTPException(
+                status_code=403,
+                detail="Only schools whose name starts with 'smoketest-' may be deleted via this endpoint.",
+            )
+        # teachers.school_id has no ON DELETE CASCADE (migration 0001), so we
+        # must delete teachers (and their cascade-children) before the school.
+        # students.school_id is ON DELETE SET NULL, so they'd be orphaned if we
+        # don't delete them first.
+        await conn.execute("DELETE FROM students WHERE school_id = $1", school_id)
+        await conn.execute("DELETE FROM teachers WHERE school_id = $1", school_id)
+        await conn.execute("DELETE FROM schools WHERE school_id = $1", school_id)
+
+    log.info("test_school_deleted school_id=%s name=%s", school_id, row["name"])
