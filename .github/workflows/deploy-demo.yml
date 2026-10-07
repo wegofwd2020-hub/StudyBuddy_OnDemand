@@ -131,6 +131,13 @@ jobs:
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
             'cd /opt/studybuddy && sudo /usr/bin/git -C /opt/studybuddy pull --ff-only origin main'
 
+      - name: Prune unused Docker images + build cache
+        run: |
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
+            sudo /usr/bin/docker image prune -af --filter 'until=24h' && \
+            sudo /usr/bin/docker builder prune -af --filter 'until=24h'
+          "
+
       # --pull=always: compose re-pulls every image before starting and
       # recreates containers whose image digest changed. The default
       # (--pull=missing) skips re-pulling when the tag already exists
