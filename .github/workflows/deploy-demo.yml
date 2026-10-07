@@ -105,7 +105,7 @@ jobs:
           # stale INJECT_BUILD_ID layer. no-cache-filter bypasses that and re-runs
           # the runner stage (cheap: just COPYs + one echo) so build-id.json always
           # carries the current commit SHA. Builder stage (npm build) still caches.
-          no-cache-filter: runner
+          no-cache-filters: runner
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
 
