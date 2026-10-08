@@ -33,15 +33,27 @@ Fixtures created (all deleted on teardown via DELETE /admin/test-schools/{id}):
   - 4 classrooms, 1 per grade, each with a catalog curriculum package
   - 4 classroom-student assignments (1 student per classroom)
 
+Reports written to reports/smoke/ (gitignored — never committed):
+  {timestamp}-{env}.json   machine-readable result
+  {timestamp}-{env}.md     human-readable Markdown
+  latest-{env}.json        always overwritten — quick access
+  latest-{env}.md
+
 Requires:  pip install requests
 """
 
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import datetime
+import json
+import pathlib
 import sys
 import time
+from itertools import groupby
 from typing import Any
+from urllib.parse import urlparse
 
 try:
     import requests as _requests
@@ -66,24 +78,144 @@ _failures: list[str] = []
 _warnings: list[str] = []
 
 
+# ── Report collector ──────────────────────────────────────────────────────────
+@dataclasses.dataclass
+class _Check:
+    section: str
+    label: str
+    status: str   # "pass" | "fail" | "warn"
+    detail: str
+
+
+def _env_label(url: str) -> str:
+    if "127.0.0.1" in url or "localhost" in url:
+        return "local"
+    host = urlparse(url).hostname or url
+    return host.split(".")[0]
+
+
+def _render_md(data: dict) -> str:
+    s = data["summary"]
+    overall = "❌" if s["fail"] else "✅"
+    warn_part = f"⚠️ {s['warn']} warning(s)" if s["warn"] else f"— {s['warn']} warnings"
+    fail_part = f"❌ {s['fail']} failed" if s["fail"] else f"— {s['fail']} failed"
+
+    lines = [
+        "# StudyBuddy Smoke Test Report",
+        "",
+        f"**Target:** {data['target']}  ",
+        f"**Env:** {data['env']}  ",
+        f"**Run ID:** {data['run_id']}  ",
+        f"**Date:** {data['timestamp']}  ",
+        f"**Duration:** {data['duration_s']}s  ",
+        "",
+        "## Summary",
+        "",
+        f"{overall} **{s['pass']} passed** · {warn_part} · {fail_part}",
+        "",
+    ]
+
+    if not data["setup_ok"]:
+        lines += ["> ⚠️ Setup did not complete — checks below may be incomplete.", ""]
+    if not data["teardown_ok"]:
+        lines += ["> ⚠️ Teardown failed — test fixtures may remain in the database.", ""]
+
+    lines += ["## Checks", ""]
+    for section_name, checks in groupby(data["checks"], key=lambda c: c["section"]):
+        lines.append(f"### {section_name}")
+        lines.append("")
+        lines.append("| Status | Check | Detail |")
+        lines.append("|---|---|---|")
+        for c in checks:
+            icon = {"pass": "✅", "fail": "❌", "warn": "⚠️"}.get(c["status"], "?")
+            detail = (c["detail"] or "—").replace("|", "\\|")
+            lines.append(f"| {icon} | {c['label']} | {detail} |")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+class Reporter:
+    def __init__(self) -> None:
+        self._section = ""
+        self._checks: list[_Check] = []
+        self._start: float = time.time()
+
+    def set_section(self, title: str) -> None:
+        self._section = title
+
+    def record(self, status: str, label: str, detail: str = "") -> None:
+        self._checks.append(_Check(self._section, label, status, detail))
+
+    def write(
+        self,
+        base_url: str,
+        run_id: str,
+        *,
+        setup_ok: bool,
+        teardown_ok: bool,
+    ) -> None:
+        duration = round(time.time() - self._start, 1)
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        env = _env_label(base_url)
+        stamp = now.strftime("%Y-%m-%dT%H-%M-%S")
+
+        report_dir = pathlib.Path(__file__).parent.parent.parent / "reports" / "smoke"
+        report_dir.mkdir(parents=True, exist_ok=True)
+
+        data: dict[str, Any] = {
+            "run_id": run_id,
+            "env": env,
+            "target": base_url,
+            "timestamp": now.isoformat(),
+            "duration_s": duration,
+            "setup_ok": setup_ok,
+            "teardown_ok": teardown_ok,
+            "summary": {
+                "pass": sum(1 for c in self._checks if c.status == "pass"),
+                "warn": sum(1 for c in self._checks if c.status == "warn"),
+                "fail": sum(1 for c in self._checks if c.status == "fail"),
+            },
+            "checks": [dataclasses.asdict(c) for c in self._checks],
+        }
+
+        json_body = json.dumps(data, indent=2)
+        (report_dir / f"{stamp}-{env}.json").write_text(json_body)
+        (report_dir / f"latest-{env}.json").write_text(json_body)
+
+        md_body = _render_md(data)
+        (report_dir / f"{stamp}-{env}.md").write_text(md_body)
+        (report_dir / f"latest-{env}.md").write_text(md_body)
+
+        print(f"\n  {BOLD}Report:{RESET} reports/smoke/{stamp}-{env}.md")
+
+
+# Module-level singleton — reset in main() so the timer starts at invocation.
+_reporter = Reporter()
+
+
 def ok(label: str) -> None:
     print(f"  {GREEN}✓{RESET} {label}")
+    _reporter.record("pass", label)
 
 
 def fail(label: str, detail: str = "") -> None:
     msg = f"{label}{': ' + detail if detail else ''}"
     print(f"  {RED}✗{RESET} {msg}")
     _failures.append(msg)
+    _reporter.record("fail", label, detail)
 
 
 def warn(label: str, detail: str = "") -> None:
     msg = f"{label}{': ' + detail if detail else ''}"
     print(f"  {YELLOW}~{RESET} {msg}")
     _warnings.append(msg)
+    _reporter.record("warn", label, detail)
 
 
 def section(title: str) -> None:
     print(f"\n{BOLD}{title}{RESET}")
+    _reporter.set_section(title)
 
 
 # ── HTTP client ───────────────────────────────────────────────────────────────
@@ -423,25 +555,32 @@ def test_students(base: str, students: dict[int, dict]) -> None:
 
 
 # ── Teardown ──────────────────────────────────────────────────────────────────
-def teardown(base: str, admin_token: str, school_id: str) -> None:
+def teardown(base: str, admin_token: str, school_id: str) -> bool:
+    """Returns True if teardown succeeded."""
     section("Teardown")
     r = _req("DELETE", base, f"/api/v1/admin/test-schools/{school_id}", token=admin_token)
     if r.status_code == 204:
         ok(f"school {school_id} deleted (cascade)")
-    else:
-        print(
-            f"  {RED}✗{RESET} teardown failed: "
-            f"status={r.status_code} {r.text[:120]}"
-        )
-        print(
-            f"\n  Manual cleanup (inside api container):\n"
-            f"    psql -c \"DELETE FROM schools "
-            f"WHERE school_id = '{school_id}';\""
-        )
+        return True
+    print(
+        f"  {RED}✗{RESET} teardown failed: "
+        f"status={r.status_code} {r.text[:120]}"
+    )
+    print(
+        f"\n  Manual cleanup (inside api container):\n"
+        f"    psql -c \"DELETE FROM schools "
+        f"WHERE school_id = '{school_id}';\""
+    )
+    return False
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main() -> int:
+    global _reporter, _failures, _warnings
+    _reporter = Reporter()
+    _failures = []
+    _warnings = []
+
     parser = argparse.ArgumentParser(
         description="StudyBuddy on-demand persona smoke test harness",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -482,16 +621,21 @@ def main() -> int:
         ok(f"admin login OK ({args.admin_email})")
     except Exception as exc:
         print(f"  {RED}✗{RESET} {exc}")
+        _reporter.write(base, run_id, setup_ok=False, teardown_ok=False)
         return 2
 
     # Setup fixtures
+    setup_ok = False
+    teardown_ok = False
     state: dict | None = None
     try:
         state = setup(base, run_id)
+        setup_ok = True
     except Exception as exc:
         print(f"\n  {RED}✗{RESET} setup failed: {exc}")
         if state and state.get("school_id") and not args.no_teardown:
-            teardown(base, admin_token, state["school_id"])
+            teardown_ok = teardown(base, admin_token, state["school_id"])
+        _reporter.write(base, run_id, setup_ok=False, teardown_ok=teardown_ok)
         return 2
 
     # Run persona checks — always teardown afterwards (unless --no-teardown)
@@ -501,8 +645,9 @@ def main() -> int:
         test_students(base, state["students"])
     finally:
         if not args.no_teardown:
-            teardown(base, admin_token, state["school_id"])
+            teardown_ok = teardown(base, admin_token, state["school_id"])
         else:
+            teardown_ok = True  # skipped by choice — not a failure
             print(
                 f"\n  {YELLOW}Fixtures preserved (--no-teardown).{RESET}\n"
                 f"  To clean up manually:\n"
@@ -521,6 +666,7 @@ def main() -> int:
             print(f"\n{YELLOW}{len(_warnings)} warning(s):{RESET}")
             for w in _warnings:
                 print(f"  {YELLOW}~{RESET} {w}")
+        _reporter.write(base, run_id, setup_ok=setup_ok, teardown_ok=teardown_ok)
         return 1
 
     print(f"{GREEN}{BOLD}All persona checks passed.{RESET}")
@@ -528,6 +674,8 @@ def main() -> int:
         print(f"\n{YELLOW}{len(_warnings)} warning(s) (non-blocking):{RESET}")
         for w in _warnings:
             print(f"  {YELLOW}~{RESET} {w}")
+
+    _reporter.write(base, run_id, setup_ok=setup_ok, teardown_ok=teardown_ok)
     return 0
 
 

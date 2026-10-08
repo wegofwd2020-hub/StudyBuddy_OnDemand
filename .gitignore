@@ -122,3 +122,6 @@ backend/data/grade*.json
 # It has correctly never been committed; this makes sure a `git add -A` on the
 # VPS cannot change that.
 infra/pgbouncer/userlist.txt
+
+# Smoke test reports — local only, never committed
+reports/
