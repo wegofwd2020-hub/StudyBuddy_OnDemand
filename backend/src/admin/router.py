@@ -1371,3 +1371,100 @@ async def delete_test_school(
         await conn.execute("DELETE FROM schools WHERE school_id = $1", school_id)
 
     log.info("test_school_deleted school_id=%s name=%s", school_id, row["name"])
+
+
+# ── GET /admin/schools ────────────────────────────────────────────────────────
+
+
+@router.get("/admin/schools")
+async def list_schools(
+    request: Request,
+    admin: Annotated[dict, Depends(_require("demo:reset"))],
+    name: str | None = None,
+) -> list[dict]:
+    """
+    List all schools. Pass ?name= for a case-insensitive substring filter.
+    Used by the smoke test harness to resolve a school name to its school_id.
+    """
+    async with get_db(request) as conn:
+        if name:
+            rows = await conn.fetch(
+                """
+                SELECT school_id::text, name, contact_email
+                FROM   schools
+                WHERE  lower(name) LIKE lower($1)
+                ORDER  BY name
+                """,
+                f"%{name}%",
+            )
+        else:
+            rows = await conn.fetch(
+                """
+                SELECT school_id::text, name, contact_email
+                FROM   schools
+                ORDER  BY name
+                """
+            )
+    return [dict(r) for r in rows]
+
+
+# ── DELETE /admin/test-schools/{school_id}/smoke-users ────────────────────────
+
+
+@router.delete(
+    "/admin/test-schools/{school_id}/smoke-users",
+    status_code=200,
+)
+async def purge_smoke_users(
+    school_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require("demo:reset"))],
+) -> dict:
+    """
+    Delete teachers and students whose email starts with 'smoke-' from a
+    school without touching the school itself.
+
+    Used by the smoke test harness in attach mode (--school-name / --school-id)
+    so that a real school's data is not destroyed during teardown.
+
+    Requires: super_admin role.
+    """
+    if admin.get("role") != "super_admin":
+        raise HTTPException(status_code=403, detail="super_admin role required")
+
+    async with get_db(request) as conn:
+        row = await conn.fetchrow(
+            "SELECT school_id, name FROM schools WHERE school_id = $1",
+            school_id,
+        )
+        if not row:
+            raise HTTPException(status_code=404, detail="School not found")
+
+        deleted_students = await conn.fetch(
+            """
+            DELETE FROM students
+            WHERE  school_id = $1 AND email LIKE 'smoke-%'
+            RETURNING student_id::text, email
+            """,
+            school_id,
+        )
+        deleted_teachers = await conn.fetch(
+            """
+            DELETE FROM teachers
+            WHERE  school_id = $1 AND email LIKE 'smoke-%'
+            RETURNING teacher_id::text, email
+            """,
+            school_id,
+        )
+
+    log.info(
+        "smoke_users_purged school_id=%s teachers=%d students=%d",
+        school_id,
+        len(deleted_teachers),
+        len(deleted_students),
+    )
+    return {
+        "school_id": str(school_id),
+        "deleted_teachers": len(deleted_teachers),
+        "deleted_students": len(deleted_students),
+    }
