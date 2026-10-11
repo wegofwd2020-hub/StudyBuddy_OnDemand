@@ -992,6 +992,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/content/visuals/wikimedia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Wikimedia Image
+         * @description Proxy a Wikimedia Commons image search with 24-hour Redis cache.
+         *
+         *     Returns the first freely-licensed image matching the query.
+         *     The frontend calls this once per visual_hint emitted by the pipeline.
+         */
+        get: operations["get_wikimedia_image_api_v1_content_visuals_wikimedia_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/progress/session": {
         parameters: {
             query?: never;
@@ -2091,6 +2114,32 @@ export interface paths {
          */
         post: operations["reset_demo_school_api_v1_admin_demo_reset_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/test-schools/{school_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Test School
+         * @description Hard-delete a smoke-test school and all its cascade data.
+         *
+         *     Safety: only schools whose name starts with "smoketest-" may be deleted
+         *     this way.  This endpoint exists solely for the persona smoke-test harness
+         *     (scripts/smoke/persona_smoke.py) and must never be used against real data.
+         *
+         *     Requires: super_admin role.
+         */
+        delete: operations["delete_test_school_api_v1_admin_test_schools__school_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -8716,6 +8765,11 @@ export interface components {
             /** Key Points */
             key_points: string[];
             /**
+             * Visual Hints
+             * @default []
+             */
+            visual_hints: components["schemas"]["VisualHint"][];
+            /**
              * Has Audio
              * @default false
              */
@@ -11420,6 +11474,15 @@ export interface components {
             /** Items */
             items: components["schemas"]["VisualItem"][];
         };
+        /** VisualHint */
+        VisualHint: {
+            /** Query */
+            query: string;
+            /** Caption */
+            caption: string;
+            /** Placement */
+            placement: string;
+        };
         /** VisualItem */
         VisualItem: {
             /** Src */
@@ -11461,6 +11524,19 @@ export interface components {
             acknowledged_by_email?: string | null;
             /** Acknowledged At */
             acknowledged_at?: string | null;
+        };
+        /** WikimediaImageResult */
+        WikimediaImageResult: {
+            /** Url */
+            url: string;
+            /** Thumbnail Url */
+            thumbnail_url: string;
+            /** Title */
+            title: string;
+            /** Attribution */
+            attribution: string;
+            /** License */
+            license: string;
         };
         /** _SectionSummary */
         _SectionSummary: {
@@ -13011,6 +13087,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AppVersionResponse"];
+                };
+            };
+        };
+    };
+    get_wikimedia_image_api_v1_content_visuals_wikimedia_get: {
+        parameters: {
+            query: {
+                query: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WikimediaImageResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -14628,6 +14735,35 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    delete_test_school_api_v1_admin_test_schools__school_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -1849,6 +1849,56 @@
         }
       }
     },
+    "/api/v1/content/visuals/wikimedia": {
+      "get": {
+        "tags": [
+          "content"
+        ],
+        "summary": "Get Wikimedia Image",
+        "description": "Proxy a Wikimedia Commons image search with 24-hour Redis cache.\n\nReturns the first freely-licensed image matching the query.\nThe frontend calls this once per visual_hint emitted by the pipeline.",
+        "operationId": "get_wikimedia_image_api_v1_content_visuals_wikimedia_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 200,
+              "title": "Query"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WikimediaImageResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/progress/session": {
       "post": {
         "tags": [
@@ -4605,6 +4655,47 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/api/v1/admin/test-schools/{school_id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Delete Test School",
+        "description": "Hard-delete a smoke-test school and all its cascade data.\n\nSafety: only schools whose name starts with \"smoketest-\" may be deleted\nthis way.  This endpoint exists solely for the persona smoke-test harness\n(scripts/smoke/persona_smoke.py) and must never be used against real data.\n\nRequires: super_admin role.",
+        "operationId": "delete_test_school_api_v1_admin_test_schools__school_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/admin/streams": {
@@ -22911,6 +23002,14 @@
             "type": "array",
             "title": "Key Points"
           },
+          "visual_hints": {
+            "items": {
+              "$ref": "#/components/schemas/VisualHint"
+            },
+            "type": "array",
+            "title": "Visual Hints",
+            "default": []
+          },
           "has_audio": {
             "type": "boolean",
             "title": "Has Audio",
@@ -29820,6 +29919,29 @@
         ],
         "title": "VisualBlock"
       },
+      "VisualHint": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption"
+          },
+          "placement": {
+            "type": "string",
+            "title": "Placement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "caption",
+          "placement"
+        ],
+        "title": "VisualHint"
+      },
       "VisualItem": {
         "properties": {
           "src": {
@@ -29941,6 +30063,39 @@
           "column"
         ],
         "title": "WarningDetail"
+      },
+      "WikimediaImageResult": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "title": "Thumbnail Url"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "attribution": {
+            "type": "string",
+            "title": "Attribution"
+          },
+          "license": {
+            "type": "string",
+            "title": "License"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "thumbnail_url",
+          "title",
+          "attribution",
+          "license"
+        ],
+        "title": "WikimediaImageResult"
       },
       "_SectionSummary": {
         "properties": {
