@@ -325,7 +325,7 @@ start_test_db() {
         -e POSTGRES_USER=studybuddy \
         -e POSTGRES_PASSWORD=testpassword \
         -p "${TEST_DB_PORT}:5432" \
-        docker.io/postgres:16-alpine \
+        docker.io/pgvector/pgvector:pg16 \
         postgres -c log_min_messages=WARNING
 
     wait_for_port localhost "$TEST_DB_PORT" "Test PostgreSQL"
@@ -346,6 +346,7 @@ run_tests() {
           AUTH0_MGMT_CLIENT_SECRET AUTH0_MGMT_API_URL
     # Point tests at the dedicated test DB (different port, same host/creds as conftest expects).
     export DATABASE_URL="postgresql://studybuddy:testpassword@localhost:${TEST_DB_PORT}/studybuddy_test"
+    export TEST_DB_URL="$DATABASE_URL"
     PYTHONPATH=. pytest tests/ -v
     popd > /dev/null
 }
