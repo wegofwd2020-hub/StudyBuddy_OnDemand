@@ -156,7 +156,10 @@ export default function SignInPage() {
       const destination = destinationFor(res.auth_track, res.role, res.first_login, next);
       await router.push(destination);
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string };
+      const axiosErr = err as {
+        response?: { status?: number; data?: unknown };
+        message?: string;
+      };
       const status = axiosErr?.response?.status;
 
       if (status === 401) {

@@ -1,6 +1,6 @@
 import { Auth0Client } from "@auth0/nextjs-auth0/server";
 
-let auth0: any = null;
+let auth0: Auth0Client | null = null;
 
 class StubAuth0Client {
   async getSession() {
@@ -16,7 +16,7 @@ export function getAuth0() {
     const domain = process.env.AUTH0_DOMAIN;
     // Skip Auth0 if domain is invalid (localhost, empty, etc.)
     if (!domain || domain.includes("localhost")) {
-      auth0 = new StubAuth0Client();
+      auth0 = new StubAuth0Client() as unknown as Auth0Client;
     } else {
       try {
         auth0 = new Auth0Client({
@@ -26,7 +26,7 @@ export function getAuth0() {
           secret: process.env.AUTH0_SECRET,
         });
       } catch {
-        auth0 = new StubAuth0Client();
+        auth0 = new StubAuth0Client() as unknown as Auth0Client;
       }
     }
   }
