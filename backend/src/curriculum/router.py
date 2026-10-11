@@ -39,6 +39,7 @@ from src.core.cache_keys import cur_key
 from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.core.storage import StorageBackend, get_storage
+from src.core.subjects import readable_subject_label
 from src.curriculum.schemas import (
     CurriculumActivateResponse,
     CurriculumUploadRequest,
@@ -528,7 +529,7 @@ async def get_curriculum_tree(
         subjects_map: dict[str, list[dict]] = {}
         for row in rows:
             holder_by_unit[row["unit_id"]] = row["holder"]
-            subj = row["subject_display"]
+            subj = readable_subject_label(row["subject_display"])
             if subj not in subjects_map:
                 subjects_map[subj] = []
             subjects_map[subj].append(
@@ -721,7 +722,7 @@ async def _build_grade_curriculum_for_student(
     # Step 3: build the GradeCurriculum payload.
     subjects_map: dict[str, list[dict]] = {}
     for row in rows:
-        subj_name = row["subject_display"]
+        subj_name = readable_subject_label(row["subject_display"])
         if subj_name not in subjects_map:
             subjects_map[subj_name] = []
         subjects_map[subj_name].append(
