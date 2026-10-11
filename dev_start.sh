@@ -346,6 +346,7 @@ run_tests() {
           AUTH0_MGMT_CLIENT_SECRET AUTH0_MGMT_API_URL
     # Point tests at the dedicated test DB (different port, same host/creds as conftest expects).
     export DATABASE_URL="postgresql://studybuddy:testpassword@localhost:${TEST_DB_PORT}/studybuddy_test"
+    export TEST_DB_URL="$DATABASE_URL"
     PYTHONPATH=. pytest tests/ -v
     popd > /dev/null
 }
