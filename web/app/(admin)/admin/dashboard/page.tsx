@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="flex flex-col">
       {/* Hero image */}
-      <div className="relative h-[240px] w-full bg-gray-900">
+      <div className="relative h-[120px] w-full bg-gray-900">
         <Image
           src="/assets/peeple.png"
           alt="Admin Console"

@@ -173,7 +173,11 @@ export default function AdminStreamsPage() {
                           </button>
                         ) : (
                           <button
-                            onClick={() => archiveMut.mutate(s.code)}
+                            onClick={() => {
+                              if (confirm(`Archive stream '${s.code}'?`)) {
+                                archiveMut.mutate(s.code);
+                              }
+                            }}
                             disabled={archiveMut.isPending}
                             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                             title="Archive"
