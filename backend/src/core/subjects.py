@@ -21,10 +21,16 @@ unit_id the map doesn't cover.
 
 from __future__ import annotations
 
+import glob
+import json
+import os
 import re
 from collections.abc import Iterable
+from functools import lru_cache
 
 import asyncpg
+
+_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data"))
 
 # Subject-code → display name, keyed by the code embedded in a unit_id prefix
 # (e.g. "G8-SCI-001" → "SCI" → "Science"). Derived from the canonical names in
@@ -71,6 +77,29 @@ _UNIT_ID_SUBJECT_RE = re.compile(r"^G\d+-([A-Z]+)-")
 # not be allowed to win over a resolved one. Stream codes were leaking through
 # because they don't match the G\d+-[A-Z]+ pattern (#824).
 _BARE_SUBJECT_CODE_RE = re.compile(r"^(G\d+-[A-Z]+|[a-z]+-\d+-g\d+-[a-z]+)$")
+
+
+@lru_cache(maxsize=1)
+def _subject_names_by_code() -> dict[str, str]:
+    names: dict[str, str] = {}
+    for path in sorted(glob.glob(os.path.join(_DATA_DIR, "*.json"))):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        for subj in data.get("subjects", []):
+            code, name = subj.get("subject_id"), subj.get("name")
+            if code and name:
+                names.setdefault(code, name)
+    return names
+
+
+def readable_subject_label(label: str | None) -> str | None:
+    """Replace a bare subject code (G12-ENG) with its display name from data/*.json."""
+    if label and _BARE_SUBJECT_CODE_RE.match(label):
+        return _subject_names_by_code().get(label, label)
+    return label
 
 
 def subject_from_unit_id(unit_id: str | None) -> str | None:
