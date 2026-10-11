@@ -156,6 +156,7 @@ async def student_roster(
     _check_school(teacher, school_id, request)
 
     # Import here to avoid circular dependencies.
+    from src.content.service import resolve_curriculum_ids, served_units
     from src.core.subjects import display_subject, resolve_subject_labels
 
     async with get_db(request) as conn:
@@ -192,9 +193,7 @@ async def student_roster(
                         THEN ps.score::float / NULLIF(ps.total_questions, 0) * 100
                     END), 0
                 )                                                   AS avg_score_pct,
-                MAX(ps.started_at)                                  AS last_active,
-                STRING_AGG(DISTINCT cu.unit_id, ', ' ORDER BY cu.unit_id) AS unit_ids,
-                STRING_AGG(DISTINCT c.name, ', ' ORDER BY c.name) AS curriculum_names
+                MAX(ps.started_at)                                  AS last_active
             -- Membership comes from `school_enrolments`, not `students.school_id`
             -- (#572). A student may be enrolled at more than one school — a
             -- school for their regular curriculum and an external tutor running
@@ -219,23 +218,12 @@ async def student_roster(
                 -- creates the enrolment before any work, so this hides nothing
                 -- a school legitimately owns.
                 AND ps.started_at >= se.added_at
-            LEFT JOIN classroom_students cs ON cs.student_id = s.student_id
-            LEFT JOIN classroom_packages cp ON cp.classroom_id = cs.classroom_id
-            LEFT JOIN curriculum_units cu ON cu.curriculum_id = cp.curriculum_id
-            LEFT JOIN curricula c ON c.curriculum_id = cp.curriculum_id
             WHERE se.school_id = $1 AND se.status = 'active' {grade_filter}
             GROUP BY s.student_id, s.name, s.grade
             ORDER BY s.name
             """,
             *params,
         )
-
-        # Resolve human-readable subject names (same pattern as #839 fix for analytics).
-        unit_ids = []
-        for r in rows:
-            if r["unit_ids"]:
-                unit_ids.extend(r["unit_ids"].split(", "))
-        subject_labels = await resolve_subject_labels(conn, list(set(unit_ids))) if unit_ids else {}
 
     # The denominator is each student's OWN curriculum, resolved the same way
     # their content is (#638). Summing every default curriculum at their grade
@@ -244,32 +232,28 @@ async def student_roster(
         request.app.state.pool, get_redis(request), rows, school_id
     )
 
-    students = []
-    log.warning(
-        "roster_debug", extra={"num_rows": len(rows), "subject_labels_size": len(subject_labels)}
-    )
-    for r in rows:
-        # Aggregate display names from the unit_ids for this student's curricula.
-        subject_names = set()
-        if r["unit_ids"]:
-            for uid in r["unit_ids"].split(", "):
-                # subject_labels keys are unit_ids; we don't have raw subject values here
-                # because we're pulling from curriculum_units. Use the unit's resolved name.
-                display = display_subject(subject_labels, uid, None)
-                subject_names.add(display)
-        # Fallback to curriculum names if no units found. This handles cases where
-        # a curriculum has no units (edge case) or provides readable names.
-        if not subject_names and r["curriculum_names"]:
-            subject_names = {n.strip() for n in r["curriculum_names"].split(", ") if n.strip()}
-        subject_str = ", ".join(sorted(subject_names)) if subject_names else "Not Assigned"
-        log.warning(
-            "roster_student",
-            extra={
-                "name": r["student_name"],
-                "unit_ids_count": len(r["unit_ids"].split(", ")) if r["unit_ids"] else 0,
-                "subject": subject_str,
-            },
+    # Subjects come from the same resolution content serving uses, so a student
+    # is never labelled "Not Assigned" while being taught a real curriculum.
+    pool = request.app.state.pool
+    redis = get_redis(request)
+    curricula = {
+        str(r["student_id"]): await resolve_curriculum_ids(
+            str(r["student_id"]), r["grade"], pool, redis, school_id=school_id
         )
+        for r in rows
+    }
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        served = {sid: await served_units(conn, ids) for sid, ids in curricula.items()}
+        labels = await resolve_subject_labels(
+            conn, {u["unit_id"] for units in served.values() for u in units}
+        )
+
+    students = []
+    for r in rows:
+        sid = str(r["student_id"])
+        names = {display_subject(labels, u["unit_id"], u["subject"]) for u in served[sid]}
+        subject_str = ", ".join(sorted(names)) if names else "Not Assigned"
 
         students.append(
             {
