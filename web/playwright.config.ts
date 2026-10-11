@@ -104,7 +104,8 @@ export default defineConfig({
       APP_BASE_URL: "http://localhost:3000",
       AUTH0_CLIENT_ID: "test_client_id",
       AUTH0_CLIENT_SECRET: "test_client_secret",
-      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api/v1",
+      NEXT_PUBLIC_API_URL:
+        process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api/v1",
     },
   },
 });
