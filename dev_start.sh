@@ -325,7 +325,7 @@ start_test_db() {
         -e POSTGRES_USER=studybuddy \
         -e POSTGRES_PASSWORD=testpassword \
         -p "${TEST_DB_PORT}:5432" \
-        docker.io/postgres:16-alpine \
+        docker.io/pgvector/pgvector:pg16 \
         postgres -c log_min_messages=WARNING
 
     wait_for_port localhost "$TEST_DB_PORT" "Test PostgreSQL"
