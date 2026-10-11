@@ -1,6 +1,6 @@
 import { Auth0Client } from "@auth0/nextjs-auth0/server";
 
-let auth0: any = null;
+let auth0: Auth0Client | StubAuth0Client | null = null;
 
 class StubAuth0Client {
   async getSession() {
