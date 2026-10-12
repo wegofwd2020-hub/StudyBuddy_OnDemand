@@ -65,6 +65,7 @@ export interface EnrolmentUploadResponse {
   enrolled: number;
   already_enrolled: number;
   errors?: Array<Record<string, unknown>>;
+  skipped?: Array<{ email: string; reason: string }>;
 }
 
 export async function uploadRoster(

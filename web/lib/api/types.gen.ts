@@ -8322,6 +8322,13 @@ export interface components {
             errors: {
                 [key: string]: unknown;
             }[];
+            /**
+             * Skipped
+             * @default []
+             */
+            skipped: {
+                [key: string]: unknown;
+            }[];
         };
         /** ExperimentQuestion */
         ExperimentQuestion: {

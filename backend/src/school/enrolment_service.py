@@ -38,11 +38,13 @@ async def upload_roster(
     enrolment time — they can be set later via assign_student(). When provided,
     a student_teacher_assignments row is also created/replaced.
 
-    Returns {enrolled, already_enrolled, errors: [{email, reason}]}.
+    Returns {enrolled, already_enrolled, errors: [{email, reason}],
+    skipped: [{email, reason}]}. `enrolled` counts rows actually inserted.
     """
     enrolled = 0
     already_enrolled = 0
     errors: list[dict] = []
+    skipped: list[dict] = []
 
     sid = uuid.UUID(school_id)
 
@@ -101,6 +103,7 @@ async def upload_roster(
         )
         if existing:
             already_enrolled += 1
+            skipped.append({"email": email, "reason": "already enrolled in this school"})
             # If grade/teacher provided, still update the assignment
             if grade and tid:
                 student_row = await conn.fetchrow(
@@ -122,12 +125,13 @@ async def upload_roster(
         student_id = student_row["student_id"] if student_row else None
         status = "active" if student_id else "pending"
 
-        await conn.execute(
+        inserted = await conn.fetchval(
             """
             INSERT INTO school_enrolments
                 (school_id, student_email, student_id, status, grade, teacher_id)
             VALUES ($1, $2, $3, $4, $5, $6)
             ON CONFLICT (school_id, student_email) DO NOTHING
+            RETURNING enrolment_id
             """,
             sid,
             email,
@@ -136,6 +140,10 @@ async def upload_roster(
             grade,
             tid,
         )
+        if inserted is None:
+            already_enrolled += 1
+            skipped.append({"email": email, "reason": "already enrolled in this school"})
+            continue
 
         # Link student → school
         if student_id:
@@ -168,7 +176,12 @@ async def upload_roster(
         already_enrolled=already_enrolled,
         errors=len(errors),
     )
-    return {"enrolled": enrolled, "already_enrolled": already_enrolled, "errors": errors}
+    return {
+        "enrolled": enrolled,
+        "already_enrolled": already_enrolled,
+        "errors": errors,
+        "skipped": skipped,
+    }
 
 
 # ── Roster read ───────────────────────────────────────────────────────────────
