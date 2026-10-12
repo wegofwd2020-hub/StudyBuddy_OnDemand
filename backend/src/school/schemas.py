@@ -135,6 +135,7 @@ class EnrolmentUploadResponse(BaseModel):
     enrolled: int
     already_enrolled: int
     errors: list[dict] = []
+    skipped: list[dict] = []
 
 
 class EnrolmentRosterItem(BaseModel):

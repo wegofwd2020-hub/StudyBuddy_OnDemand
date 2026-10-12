@@ -440,6 +440,7 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
   const [uploadResult, setUploadResult] = useState<{
     enrolled: number;
     already_enrolled: number;
+    skipped?: Array<{ email: string; reason: string }>;
   } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -617,6 +618,15 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
                   {" "}
                   ({uploadResult.already_enrolled} already enrolled — skipped)
                 </span>
+              )}
+              {uploadResult.skipped && uploadResult.skipped.length > 0 && (
+                <ul className="mt-2 list-disc pl-5 text-gray-600">
+                  {uploadResult.skipped.map((s) => (
+                    <li key={s.email}>
+                      {s.email} — {s.reason}
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           )}

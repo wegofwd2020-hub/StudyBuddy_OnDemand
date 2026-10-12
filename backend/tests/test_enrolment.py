@@ -102,6 +102,32 @@ async def test_upload_roster_deduplicates(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_upload_roster_reports_skipped_addresses(client: AsyncClient):
+    """Skipped addresses are named with a reason, and counts match rows created."""
+    school = await _register_school(client, "-skipped")
+    school_id = school["school_id"]
+    headers = {"Authorization": f"Bearer {school['access_token']}"}
+
+    await client.post(
+        f"/api/v1/schools/{school_id}/enrolment",
+        json={"students": [{"email": "kept@example.com"}]},
+        headers=headers,
+    )
+    r = await client.post(
+        f"/api/v1/schools/{school_id}/enrolment",
+        json={"students": [{"email": "kept@example.com"}, {"email": "new@example.com"}]},
+        headers=headers,
+    )
+    assert r.status_code == 201, r.text
+    data = r.json()
+    assert data["enrolled"] == 1
+    assert data["already_enrolled"] == 1
+    assert data["skipped"] == [
+        {"email": "kept@example.com", "reason": "already enrolled in this school"}
+    ]
+
+
+@pytest.mark.asyncio
 async def test_upload_roster_non_admin_returns_403(client: AsyncClient):
     """Regular teacher cannot upload a roster."""
     school = await _register_school(client, "-ra403")
@@ -318,6 +344,7 @@ async def test_resolver_uses_school_curriculum_when_active():
 async def test_resolver_raises_403_for_restricted_unenrolled_student():
     """restrict_access=True + no active enrolment → 403."""
     from fastapi import HTTPException
+
     from src.curriculum.resolver import _resolve_from_db
 
     student_id = str(uuid.uuid4())
