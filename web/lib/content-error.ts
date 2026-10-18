@@ -41,10 +41,20 @@ export function contentErrorMessage(error: unknown): {
   }
 
   // 404 = the content does not exist (yet). Retrying will never help, so don't
-  // imply it might. 402 (subscription required) is handled by the paywall flow.
+  // imply it might.
   if (status === 404) {
     return {
       message: "This isn't available yet. Please check back soon.",
+      unavailable: true,
+    };
+  }
+
+  // 402 = the school's subscription does not cover this student. A limit, not a
+  // fault, so it reads like "unavailable" rather than an error.
+  if (status === 402) {
+    return {
+      message:
+        "You've reached the end of what's available to you right now. Your school controls which lessons you can open.",
       unavailable: true,
     };
   }
