@@ -42,6 +42,18 @@ the decision notes become the spec and we develop from there.
 
 ---
 
+## Demo feedback routing (2026-04-25/26)
+
+Where each reviewer's ask belongs. None of these belong in Epic 15 (backups only).
+
+| Reviewer | Ask | Routed to |
+|---|---|---|
+| Sridhar Parthasarathy (2026-04-25) | Thinner direct-to-Anthropic interface for generating education material | **Mentible** (`StudyBuddy_SelfLearner`). Separate self-learner product, not a StudyBuddy epic. |
+| Venkit P (2026-04-26) | Teachers author their own lesson content and curriculum | **Epic 12** Teacher Content Authoring |
+| John Thomas (2026-04-26) | Scenario-based corporate compliance questions | **Pramana** (separate compliance product, `wegofwd2020-hub/pramana`); see Epic 17 |
+
+---
+
 ## Pending discussion topics (parked 2026-04-14)
 
 User is in a testing phase. Resume these conversations afterward, in this order:
