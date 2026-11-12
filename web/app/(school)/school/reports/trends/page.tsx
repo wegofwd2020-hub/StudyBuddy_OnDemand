@@ -169,7 +169,7 @@ export default function TrendsReportPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {data!.weeks.map((w) => (
+                    {[...data!.weeks].reverse().map((w) => (
                       <tr key={w.week_start} className="hover:bg-gray-50">
                         <td className="px-4 py-2.5 text-gray-600">
                           {formatDate(w.week_start)}
