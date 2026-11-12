@@ -11,7 +11,7 @@
  */
 
 import { useState, type ReactElement } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CheckCircle } from "lucide-react";
@@ -30,6 +30,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { requestTestRun } from "@/lib/api/demo";
+import { suggestEmailDomainFix } from "@/lib/utils/email-typo";
 
 const schema = z.object({
   name: z
@@ -83,8 +84,13 @@ export function TestRunRequestModal({ trigger }: TestRunRequestModalProps) {
     register,
     handleSubmit,
     reset,
+    setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  const emailValue = useWatch({ control, name: "email" });
+  const emailSuggestion = suggestEmailDomainFix(emailValue ?? "");
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -175,6 +181,21 @@ export function TestRunRequestModal({ trigger }: TestRunRequestModalProps) {
                 />
                 {errors.email && (
                   <p className="text-xs text-red-500">{errors.email.message}</p>
+                )}
+                {emailSuggestion && (
+                  <p className="text-xs text-amber-700">
+                    Did you mean{" "}
+                    <button
+                      type="button"
+                      className="font-medium underline underline-offset-2"
+                      onClick={() =>
+                        setValue("email", emailSuggestion, { shouldValidate: true })
+                      }
+                    >
+                      {emailSuggestion}
+                    </button>
+                    ?
+                  </p>
                 )}
               </div>
 
