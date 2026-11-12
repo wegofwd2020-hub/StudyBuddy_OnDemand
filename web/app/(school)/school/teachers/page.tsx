@@ -464,7 +464,7 @@ export default function TeachersPage() {
 
   // Roster summary (#369 VT-2) — total count + grade-wise breakdown, derived
   // client-side from the roster. A teacher assigned to multiple grades counts
-  // once per grade; teachers with no grade assigned roll up into "Unassigned".
+  // once per grade; teachers with no grade assigned roll up into "No grade assigned".
   const summary = useMemo(() => {
     if (!Array.isArray(teachers)) return null;
     const byGrade = new Map<number, number>();
@@ -578,8 +578,11 @@ export default function TeachersPage() {
                 </span>
               ))}
               {summary.unassigned > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
-                  Unassigned
+                <span
+                  title="Not yet assigned to a grade, so they see no students"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500"
+                >
+                  No grade assigned
                   <span className="rounded-full bg-white px-1.5 text-gray-600 tabular-nums">
                     {summary.unassigned}
                   </span>
