@@ -28039,16 +28039,13 @@
             ],
             "title": "Strongest Subject"
           },
-          "needs_attention_subject": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Needs Attention Subject"
+          "needs_attention_subjects": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Needs Attention Subjects",
+            "default": []
           }
         },
         "type": "object",

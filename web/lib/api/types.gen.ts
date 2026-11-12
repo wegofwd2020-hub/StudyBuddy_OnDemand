@@ -10749,8 +10749,11 @@ export interface components {
             per_unit: components["schemas"]["PerUnitStudentReportItem"][];
             /** Strongest Subject */
             strongest_subject?: string | null;
-            /** Needs Attention Subject */
-            needs_attention_subjects?: string[];
+            /**
+             * Needs Attention Subjects
+             * @default []
+             */
+            needs_attention_subjects: string[];
         };
         /** StudentStatusResponse */
         StudentStatusResponse: {
