@@ -7768,7 +7768,7 @@ export interface components {
             /** First Attempt Pass Rate Pct */
             first_attempt_pass_rate_pct: number;
             /** Avg Attempts To Pass */
-            avg_attempts_to_pass: number;
+            avg_attempts_to_pass: number | null;
             /** Avg Score Pct */
             avg_score_pct: number;
             /** Feedback Count */
@@ -11344,7 +11344,7 @@ export interface components {
             /** Avg Score Pct */
             avg_score_pct: number;
             /** Avg Attempts To Pass */
-            avg_attempts_to_pass: number;
+            avg_attempts_to_pass: number | null;
             attempt_distribution: components["schemas"]["AttemptDistribution"];
             /** Struggle Flag */
             struggle_flag: boolean;

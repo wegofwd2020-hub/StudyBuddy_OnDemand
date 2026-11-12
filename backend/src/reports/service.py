@@ -890,7 +890,7 @@ async def get_unit_report(
                 r["attempt_number"] if prev is None else min(prev, r["attempt_number"])
             )
     avg_att = (
-        round(sum(passed_students.values()) / len(passed_students), 1) if passed_students else 0.0
+        round(sum(passed_students.values()) / len(passed_students), 1) if passed_students else None
     )
 
     # Attempt distribution
@@ -910,7 +910,7 @@ async def get_unit_report(
         else:
             dist["four_plus"] += 1
 
-    struggle_flag = pass_rate < _STRUGGLE_PASS or avg_att > _STRUGGLE_ATT
+    struggle_flag = pass_rate < _STRUGGLE_PASS or (avg_att or 0.0) > _STRUGGLE_ATT
 
     # Feedback for this unit from enrolled students
     fb_placeholders = ", ".join(f"${i + 2}" for i in range(len(id_uuids)))
@@ -983,7 +983,7 @@ def _empty_unit_report(school_id: str, unit_id: str, period: str) -> dict:
         "quiz_attempt_pct": 0.0,
         "first_attempt_pass_rate_pct": 0.0,
         "avg_score_pct": 0.0,
-        "avg_attempts_to_pass": 0.0,
+        "avg_attempts_to_pass": None,
         "attempt_distribution": {"one": 0, "two": 0, "three": 0, "four_plus": 0},
         "struggle_flag": False,
         "feedback_count": 0,
@@ -1504,10 +1504,10 @@ async def get_curriculum_health(
     counts = {"healthy": 0, "watch": 0, "struggling": 0, "no_activity": 0}
     for r in rows:
         pass_rate = float(r["first_pass_rate"] or 0)
-        avg_att = float(r["avg_att"] or 0)
+        avg_att = float(r["avg_att"]) if r["avg_att"] is not None else None
         avg_score = float(r["avg_score"] or 0)
         has_lv = bool(r["has_lesson_view"])
-        tier = _health_tier(pass_rate, avg_att, has_lv)
+        tier = _health_tier(pass_rate, avg_att or 0.0, has_lv)
         action = _recommended_action(tier)
         counts[tier] += 1
         fb = fb_map.get(r["unit_id"])
@@ -1542,7 +1542,7 @@ async def get_curriculum_health(
                     "subject": row["subject"] if row else None,
                     "health_tier": "no_activity",
                     "first_attempt_pass_rate_pct": 0.0,
-                    "avg_attempts_to_pass": 0.0,
+                    "avg_attempts_to_pass": None,
                     "avg_score_pct": 0.0,
                     # Read from fb_map rather than hardcoded 0. A unit can have
                     # feedback and no activity — that is precisely the case that

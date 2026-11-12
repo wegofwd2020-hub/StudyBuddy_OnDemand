@@ -105,7 +105,7 @@ export interface CurriculumHealthUnit {
   curriculum_id?: string | null;
   health_tier: "healthy" | "watch" | "struggling" | "no_activity";
   first_attempt_pass_rate_pct: number;
-  avg_attempts_to_pass: number;
+  avg_attempts_to_pass: number | null;
   avg_score_pct: number;
   feedback_count: number;
   avg_rating: number | null;
