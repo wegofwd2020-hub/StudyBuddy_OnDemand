@@ -1243,7 +1243,12 @@ async def get_student_report(
             subj_scores.setdefault(s, []).append(min(100.0, float(r["best_score"])))
     subj_avg = {s: sum(v) / len(v) for s, v in subj_scores.items() if v}
     strongest = max(subj_avg, key=subj_avg.__getitem__) if subj_avg else None
-    needs_att = min(subj_avg, key=subj_avg.__getitem__) if len(subj_avg) > 1 else None
+    alert_settings = await get_alert_settings(conn, school_id)
+    weak_below = alert_settings["pass_rate_threshold"]
+    needs_att = sorted(
+        (s for s, avg in subj_avg.items() if avg < weak_below),
+        key=subj_avg.__getitem__,
+    )
 
     return {
         "school_id": school_id,
@@ -1258,7 +1263,7 @@ async def get_student_report(
         "total_time_spent_s": total_time,
         "per_unit": per_unit,
         "strongest_subject": strongest,
-        "needs_attention_subject": needs_att,
+        "needs_attention_subjects": needs_att,
     }
 
 

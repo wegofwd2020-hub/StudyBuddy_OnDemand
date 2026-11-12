@@ -176,7 +176,7 @@ export default function StudentDetailPage() {
             ))}
           </div>
 
-          {(report.strongest_subject || report.needs_attention_subject) && (
+          {(report.strongest_subject || report.needs_attention_subjects.length > 0) && (
             <div className="flex flex-wrap gap-3">
               {report.strongest_subject && (
                 <div className="flex items-center gap-1.5 rounded-lg border border-green-100 bg-green-50 px-3 py-1.5 text-sm text-green-700">
@@ -190,13 +190,15 @@ export default function StudentDetailPage() {
                   <span className="font-medium">{report.strongest_subject}</span>
                 </div>
               )}
-              {report.needs_attention_subject && (
-                <div className="flex items-center gap-1.5 rounded-lg border border-orange-100 bg-orange-50 px-3 py-1.5 text-sm text-orange-700">
+              {report.needs_attention_subjects.map((subject) => (
+                <div
+                  key={subject}
+                  className="flex items-center gap-1.5 rounded-lg border border-orange-100 bg-orange-50 px-3 py-1.5 text-sm text-orange-700"
+                >
                   <XCircle className="h-4 w-4" />
-                  Needs attention:{" "}
-                  <span className="font-medium">{report.needs_attention_subject}</span>
+                  Needs attention: <span className="font-medium">{subject}</span>
                 </div>
-              )}
+              ))}
             </div>
           )}
 
