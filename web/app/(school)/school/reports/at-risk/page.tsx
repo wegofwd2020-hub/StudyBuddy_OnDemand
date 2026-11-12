@@ -56,7 +56,12 @@ function LastActiveCell({
   if (!lastActive) {
     return <span className="text-gray-400">Never active</span>;
   }
-  const label = inactiveDays != null ? `${inactiveDays}d ago` : formatDate(lastActive);
+  const label =
+    inactiveDays === 0
+      ? "Today"
+      : inactiveDays != null
+        ? `${inactiveDays}d ago`
+        : formatDate(lastActive);
   return (
     <span
       className={cn(
