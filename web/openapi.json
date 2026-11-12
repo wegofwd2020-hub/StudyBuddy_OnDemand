@@ -9829,6 +9829,66 @@
         ]
       }
     },
+    "/api/v1/schools/{school_id}/enrolment/resend-invite": {
+      "post": {
+        "tags": [
+          "school"
+        ],
+        "summary": "Resend Enrolment Invite Endpoint",
+        "description": "Email a pending roster student the invite to create their account (school_admin only).",
+        "operationId": "resend_enrolment_invite_endpoint_api_v1_schools__school_id__enrolment_resend_invite_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendInviteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Resend Enrolment Invite Endpoint Api V1 Schools  School Id  Enrolment Resend Invite Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/school/enrol/confirm": {
       "post": {
         "tags": [
@@ -25167,6 +25227,20 @@
         ],
         "title": "ReportScope",
         "description": "What population the figures in this report actually cover.\n\nSince #576 a teacher's numbers mean THEIR GRADES and a school admin's mean\nthe whole school \u2014 the same tile, the same label, two different populations,\nwith nothing on screen saying which. That silence is the defect behind \u00a70 of\nthe dashboard design, and it is what made a teacher reading \"pass rate 62%\"\nunable to tell whose pass rate it was.\n\nThe scope is reported by the SERVER, derived from the same `_grade_filter`\nthat scoped the query. Re-deriving it in the client would let the caption\ndrift from the data it describes \u2014 the caption would still say \"your grades:\n8, 10\" after the filter had changed, which is worse than no caption.\n\n`kind`:\n    \"school\"    \u2014 unrestricted (school_admin); `grades` is empty\n    \"grades\"    \u2014 restricted to `grades`\nA teacher with NO assignments is `kind=\"grades\"` with an EMPTY list, which\nis a real and distinct state: they legitimately see nothing. It must not be\ncollapsed into \"school\" (the pre-#576 bug) nor rendered as a blank caption \u2014\nall-zero tiles with no explanation is exactly the \"can't tell 'not set up'\nfrom 'broken'\" problem in \u00a74.2."
+      },
+      "ResendInviteRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ResendInviteRequest"
       },
       "ResetPasswordRequest": {
         "properties": {
