@@ -246,7 +246,7 @@ export default function UnitPerformancePage() {
                             {u.avg_score_pct.toFixed(1)}%
                           </td>
                           <td className="px-4 py-3 text-gray-600">
-                            {u.avg_attempts_to_pass.toFixed(1)}
+                            {u.avg_attempts_to_pass?.toFixed(1) ?? "—"}
                           </td>
                           <td className="px-4 py-3 text-gray-500">{u.feedback_count}</td>
                           {/* The entry point to quiz answer review (#762). It

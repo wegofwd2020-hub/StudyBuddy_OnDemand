@@ -71,7 +71,7 @@ export function buildUnitPerformanceCsv(data: CurriculumHealthReport): {
     "Health tier": u.health_tier,
     "First-attempt pass rate %": u.first_attempt_pass_rate_pct.toFixed(1),
     "Average score %": u.avg_score_pct.toFixed(1),
-    "Avg attempts to pass": u.avg_attempts_to_pass.toFixed(2),
+    "Avg attempts to pass": u.avg_attempts_to_pass?.toFixed(2) ?? "",
     "Feedback count": u.feedback_count,
     "Recommended action": u.recommended_action,
   }));

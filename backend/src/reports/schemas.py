@@ -122,7 +122,7 @@ class UnitReport(BaseModel):
     quiz_attempt_pct: float
     first_attempt_pass_rate_pct: float
     avg_score_pct: float
-    avg_attempts_to_pass: float
+    avg_attempts_to_pass: float | None = None
     attempt_distribution: AttemptDistribution
     struggle_flag: bool
     feedback_count: int
@@ -193,7 +193,7 @@ class CurriculumHealthUnit(BaseModel):
     curriculum_id: str | None = None
     health_tier: str  # healthy | watch | struggling | no_activity
     first_attempt_pass_rate_pct: float
-    avg_attempts_to_pass: float
+    avg_attempts_to_pass: float | None = None
     avg_score_pct: float
     feedback_count: int
     avg_rating: float | None = None
