@@ -99,6 +99,22 @@ def _synthesise_email(original: str, suffix: str) -> str:
     return f"{local}+{suffix}@{domain}"
 
 
+async def _real_account_exists(conn, original: str) -> bool:
+    """True if a real student or teacher already holds this address or its base form."""
+    local, domain = _split_plus(original)
+    base = f"{local.split('+', 1)[0]}@{domain}"
+    return await conn.fetchval(
+        """
+        SELECT EXISTS (
+            SELECT 1 FROM students WHERE lower(email) = ANY($1::text[])
+            UNION ALL
+            SELECT 1 FROM teachers WHERE lower(email) = ANY($1::text[])
+        )
+        """,
+        [original.lower(), base.lower()],
+    )
+
+
 # ── POST /demo/test-run/request ──────────────────────────────────────────────
 
 
@@ -136,6 +152,15 @@ async def request_test_run(body: DemoTestRunRequestInput, request: Request):
         )
 
     async with get_db(request) as conn:
+        if await _real_account_exists(conn, original_email):
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "email_in_use",
+                    "detail": "This email already has a StudyBuddy account. Sign in with it, or use a different address.",
+                    "correlation_id": cid,
+                },
+            )
         # Block if either role is already active for this visitor.
         if await get_active_demo_account_by_email(conn, student_email):
             raise HTTPException(
@@ -354,6 +379,16 @@ async def verify_test_run(token: str, request: Request):
                 inbox_email = meta.get("original_email") or inbox_email
             except (ValueError, TypeError):
                 pass
+
+        if await _real_account_exists(conn, inbox_email):
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "email_in_use",
+                    "detail": "This email already has a StudyBuddy account. Sign in with it, or use a different address.",
+                    "correlation_id": cid,
+                },
+            )
 
         student_display = (
             f"{visitor_name} (test student)" if visitor_name else student_email.split("@")[0]
