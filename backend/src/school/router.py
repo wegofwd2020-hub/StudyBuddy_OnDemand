@@ -38,6 +38,7 @@ from src.school.enrolment_service import (
     get_roster,
     get_student_assignment,
     reassign_students_bulk,
+    resend_enrolment_invite,
     upload_roster,
 )
 from src.school.schemas import (
@@ -76,6 +77,7 @@ from src.school.schemas import (
     RejectDefinitionRequest,
     RejectRequest,
     ReorderPackageRequest,
+    ResendInviteRequest,
     ResetPasswordResponse,
     ReviewActionRequest,
     SaveDraftRequest,
@@ -3211,6 +3213,59 @@ async def get_student_theme_endpoint(
     pool = request.app.state.pool
     theme = await get_student_school_theme(pool, student["student_id"])
     return SchoolThemeResponse(theme=theme)
+
+
+# ── POST /schools/{school_id}/enrolment/resend-invite (school_admin) ──────────
+
+
+@router.post("/schools/{school_id}/enrolment/resend-invite", status_code=200)
+async def resend_enrolment_invite_endpoint(
+    school_id: str,
+    body: ResendInviteRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> dict:
+    """Email a pending roster student the invite to create their account (school_admin only)."""
+    _require_school_admin(teacher, school_id, request)
+
+    async with get_db(request) as conn:
+        result = await resend_enrolment_invite(conn, school_id, str(body.email))
+
+    if result["reason"] == "not_found":
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "not_found",
+                "detail": "No roster entry for this email.",
+                "correlation_id": _cid(request),
+            },
+        )
+    if result["reason"] == "not_pending":
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "not_pending",
+                "detail": "This student already has an account, so no invite is needed.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    from src.auth.tasks import send_enrolment_invite_email_task
+
+    try:
+        send_enrolment_invite_email_task.delay(str(body.email).lower(), result["school_name"])
+    except Exception:
+        log.warning("enrolment_invite_dispatch_failed", school_id=school_id)
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "dispatch_failed",
+                "detail": "Could not send the invite. Please try again.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    return {"detail": "Invite sent."}
 
 
 # ── POST /school/enrol/confirm (student) ──────────────────────────────────────

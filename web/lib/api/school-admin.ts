@@ -376,6 +376,17 @@ export async function resetStudentPassword(
   return res.data;
 }
 
+export async function resendEnrolmentInvite(
+  schoolId: string,
+  email: string,
+): Promise<{ detail: string }> {
+  const res = await schoolApi.post<{ detail: string }>(
+    `/schools/${schoolId}/enrolment/resend-invite`,
+    { email },
+  );
+  return res.data;
+}
+
 export interface PromoteTeacherResponse {
   teacher_id: string;
   name: string;

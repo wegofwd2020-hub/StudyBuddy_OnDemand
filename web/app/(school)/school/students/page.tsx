@@ -10,6 +10,7 @@ import {
   listClassrooms,
   getClassroom,
   provisionStudent,
+  resendEnrolmentInvite,
   resetStudentPassword,
   type RosterItem,
 } from "@/lib/api/school-admin";
@@ -20,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Copy, Check, Users, UserPlus, BookOpen, KeyRound } from "lucide-react";
+import { Copy, Check, Users, UserPlus, BookOpen, KeyRound, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/date";
 
@@ -295,6 +296,20 @@ function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
   const [msg, setMsg] = useState<string | null>(null);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
 
+  const { mutate: doResend, isPending: resending } = useMutation({
+    mutationFn: () => resendEnrolmentInvite(schoolId, item.student_email),
+    onSuccess: (data) => {
+      setMsg(data.detail);
+    },
+    onError: (err: unknown) => {
+      const detail = (
+        err as { response?: { data?: { detail?: { detail?: string } | string } } }
+      )?.response?.data?.detail;
+      const message = typeof detail === "string" ? detail : detail?.detail;
+      setMsg(message ?? "Could not send the invite. Please try again.");
+    },
+  });
+
   const { mutate: doReset, isPending: resetting } = useMutation({
     mutationFn: () => resetStudentPassword(schoolId, item.student_id!),
     onSuccess: (data) => {
@@ -340,6 +355,21 @@ function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
               title="Reset password"
             >
               <KeyRound className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {item.status === "pending" && (
+            <button
+              type="button"
+              disabled={resending}
+              onClick={() => {
+                setMsg(null);
+                doResend();
+              }}
+              className="rounded-md p-1 text-gray-400 hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-50"
+              aria-label="Resend invite"
+              title="Resend invite"
+            >
+              <Mail className="h-3.5 w-3.5" />
             </button>
           )}
         </td>
