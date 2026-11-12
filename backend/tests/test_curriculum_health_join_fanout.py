@@ -134,10 +134,10 @@ async def _student_with_views(
 async def test_avg_score_is_not_weighted_by_lesson_views(client, db_conn):
     """Two students, different view counts. The mean must not follow the views.
 
-    Student A scores 10 and viewed the lesson 3 times; student B scores 4 and
-    viewed it once. The honest mean is (10 + 4) / 2 = 7.0. Fanned out it is
-    (10*3 + 4*1) / 4 = 8.5 — the weaker student is nearly erased because they
-    opened the lesson fewer times.
+    Student A scores 10/10 and viewed the lesson 3 times; student B scores 4/10
+    and viewed it once. The honest mean is (100 + 40) / 2 = 70.0. Fanned out it
+    is (100*3 + 40*1) / 4 = 85.0 — the weaker student is nearly erased because
+    they opened the lesson fewer times.
     """
     school = await _register_school(client, "_avg")
     await _student_with_views(
@@ -154,8 +154,8 @@ async def test_avg_score_is_not_weighted_by_lesson_views(client, db_conn):
     assert r.status_code == 200, r.text
 
     unit = next(u for u in r.json()["units"] if u["unit_id"] == _UNIT)
-    assert unit["avg_score_pct"] == 7.0, (
-        f"avg_score_pct {unit['avg_score_pct']} is weighted by lesson views (8.5 = fanned out)"
+    assert unit["avg_score_pct"] == 70.0, (
+        f"avg_score_pct {unit['avg_score_pct']} is weighted by lesson views (85.0 = fanned out)"
     )
 
 

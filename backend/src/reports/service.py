@@ -1042,7 +1042,7 @@ async def get_student_report(
         """
         SELECT
             COUNT(DISTINCT unit_id) FILTER (WHERE passed)                AS units_completed,
-            ROUND(AVG(score) FILTER (WHERE completed)::numeric, 1)       AS avg_score,
+            ROUND((AVG(score::float / NULLIF(total_questions, 0)) FILTER (WHERE completed) * 100)::numeric, 1) AS avg_score,
             COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed) AS first_pass,
             COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND completed) AS first_att_students
         FROM progress_sessions
@@ -1391,7 +1391,7 @@ async def get_curriculum_health(
                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                 1
             )                                                   AS first_pass_rate,
-            ROUND(AVG(ps.score) FILTER (WHERE ps.completed)::numeric, 1) AS avg_score,
+            ROUND((AVG(ps.score::float / NULLIF(ps.total_questions, 0)) FILTER (WHERE ps.completed) * 100)::numeric, 1) AS avg_score,
             MAX(fp.avg_att)                                     AS avg_att,
             BOOL_OR(lv.viewed)                                  AS has_lesson_view
         FROM progress_sessions ps
@@ -1870,7 +1870,7 @@ async def get_trends(
         ps_row = await conn.fetchrow(
             f"""
             SELECT COUNT(*) AS attempts,
-                   ROUND(AVG(score) FILTER (WHERE completed)::numeric, 1) AS avg_score,
+                   ROUND((AVG(score::float / NULLIF(total_questions, 0)) FILTER (WHERE completed) * 100)::numeric, 1) AS avg_score,
                    ROUND(
                        100.0 * COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed)
                        -- count first-attempt SESSIONS, not distinct students (#471)

@@ -2175,6 +2175,34 @@ async def _assert_school_owns_curriculum(conn, school_id: str, curriculum_id: st
         )
 
 
+async def _assert_school_can_read_curriculum(conn, school_id: str, curriculum_id: str) -> None:
+    """Read access: the school's own fork, or a platform curriculum one of its classrooms holds."""
+    row = await conn.fetchrow(
+        "SELECT owner_type, school_id FROM curricula WHERE curriculum_id = $1",
+        curriculum_id,
+    )
+    if row and row["owner_type"] == "school" and str(row["school_id"]) == school_id:
+        return
+    if row and row["owner_type"] == "platform":
+        served = await conn.fetchval(
+            """
+            SELECT EXISTS (
+                SELECT 1 FROM classroom_packages cp
+                JOIN classrooms cl ON cl.classroom_id = cp.classroom_id
+                WHERE cl.school_id = $1 AND cp.curriculum_id = $2
+            )
+            """,
+            uuid.UUID(school_id),
+            curriculum_id,
+        )
+        if served:
+            return
+    raise HTTPException(
+        status_code=403,
+        detail="Curriculum does not belong to this school",
+    )
+
+
 async def _latest_overrides_for_unit(
     conn,
     curriculum_id: str,
@@ -2352,7 +2380,7 @@ async def list_unit_override_status(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     async with get_db(request) as conn:
-        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+        await _assert_school_can_read_curriculum(conn, school_id, curriculum_id)
 
         # Resolve source OOB curriculum_id — fork curricula have no curriculum_units rows;
         # those live under the source OOB curriculum_id.
