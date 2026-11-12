@@ -40,6 +40,7 @@ export default function AlertSettingsPage() {
     mutationFn: () => updateAlertSettings(schoolId, settings as AlertSettings),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alert-settings", schoolId] });
+      queryClient.invalidateQueries({ queryKey: ["at-risk", schoolId] });
     },
   });
 
