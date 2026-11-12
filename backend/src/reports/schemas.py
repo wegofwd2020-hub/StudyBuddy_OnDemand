@@ -165,7 +165,7 @@ class StudentReport(BaseModel):
     total_time_spent_s: int
     per_unit: list[PerUnitStudentReportItem]
     strongest_subject: str | None = None
-    needs_attention_subject: str | None = None
+    needs_attention_subjects: list[str] = []
 
 
 # ── Report 4: Curriculum Health ───────────────────────────────────────────────

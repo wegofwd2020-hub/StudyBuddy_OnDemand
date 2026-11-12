@@ -10750,7 +10750,7 @@ export interface components {
             /** Strongest Subject */
             strongest_subject?: string | null;
             /** Needs Attention Subject */
-            needs_attention_subject?: string | null;
+            needs_attention_subjects?: string[];
         };
         /** StudentStatusResponse */
         StudentStatusResponse: {

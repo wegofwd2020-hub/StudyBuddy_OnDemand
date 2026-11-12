@@ -185,7 +185,7 @@ async def test_needs_attention_ignores_earlier_curriculum_subjects(client, db_co
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         report = await get_student_report(conn, school_id, student_id, pool, redis)
 
-    assert report["needs_attention_subject"] is None
+    assert report["needs_attention_subjects"] == []
     assert report["strongest_subject"] == "Accountancy"
 
 
