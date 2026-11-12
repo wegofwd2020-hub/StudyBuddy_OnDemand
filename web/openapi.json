@@ -20402,7 +20402,14 @@
             "title": "First Attempt Pass Rate Pct"
           },
           "avg_attempts_to_pass": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Avg Attempts To Pass"
           },
           "avg_score_pct": {
@@ -20435,7 +20442,6 @@
           "subject",
           "health_tier",
           "first_attempt_pass_rate_pct",
-          "avg_attempts_to_pass",
           "avg_score_pct",
           "feedback_count",
           "recommended_action"
@@ -29546,7 +29552,14 @@
             "title": "Avg Score Pct"
           },
           "avg_attempts_to_pass": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Avg Attempts To Pass"
           },
           "attempt_distribution": {
@@ -29592,7 +29605,6 @@
           "quiz_attempt_pct",
           "first_attempt_pass_rate_pct",
           "avg_score_pct",
-          "avg_attempts_to_pass",
           "attempt_distribution",
           "struggle_flag",
           "feedback_count",
