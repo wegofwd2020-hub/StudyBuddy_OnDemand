@@ -77,7 +77,7 @@ export default function DashboardPage() {
               <Card>
                 <CardContent className="p-4">
                   <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                    Units done
+                    Units passed
                   </p>
                   <p className="mt-1 text-2xl font-bold text-gray-900">
                     {data?.summary.units_completed ?? 0}
