@@ -123,5 +123,6 @@ backend/data/grade*.json
 # VPS cannot change that.
 infra/pgbouncer/userlist.txt
 
-# Smoke test reports — local only, never committed
-reports/
+# Smoke test reports — local only, never committed. Anchored to the repo root:
+# a bare `reports/` also matches source packages like backend/src/reports/.
+/reports/
