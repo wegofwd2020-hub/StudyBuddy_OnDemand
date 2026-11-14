@@ -10,11 +10,10 @@ export function useSchoolForkId(schoolId: string, curriculumId: string) {
   });
 
   const adoptions = library.data?.adoptions ?? [];
-  const forkId =
-    adoptions.find((a) => a.curriculum_id === curriculumId)?.forked_curriculum_id ??
-    (adoptions.some((a) => a.forked_curriculum_id === curriculumId)
-      ? curriculumId
-      : null);
+  const forkId = library.isLoading
+    ? null
+    : (adoptions.find((a) => a.curriculum_id === curriculumId)?.forked_curriculum_id ??
+      curriculumId);
 
   return { forkId, isLoading: library.isLoading };
 }
