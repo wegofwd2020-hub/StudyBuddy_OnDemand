@@ -232,6 +232,7 @@ export default function ContentUnitsPage() {
   function handleImported() {
     setImportError(null);
     queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, forkId] });
+    queryClient.invalidateQueries({ queryKey: ["library", schoolId] });
   }
 
   const units = data?.units ?? [];

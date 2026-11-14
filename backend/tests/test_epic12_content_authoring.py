@@ -357,6 +357,30 @@ async def test_library_lists_adopted_curricula(
     assert data["adoptions"][0]["curriculum_id"] == oob_curricula["curriculum_id"]
 
 
+@pytest.mark.asyncio
+async def test_unit_status_readable_once_platform_curriculum_adopted(
+    client: AsyncClient, db_conn, oob_curricula
+) -> None:
+    """An adopted platform curriculum is readable before any import creates a fork."""
+    school = await _register(client, "Adopted Read School", "adopted-read@epic12.example.com")
+    school_id, token = school["school_id"], school["access_token"]
+    curriculum_id = oob_curricula["curriculum_id"]
+    units_url = f"/api/v1/schools/{school_id}/content/{curriculum_id}/units"
+
+    r_before = await client.get(units_url, headers=_auth(token))
+    assert r_before.status_code == 403
+
+    await client.post(
+        f"/api/v1/schools/{school_id}/library",
+        json={"curriculum_id": curriculum_id},
+        headers=_auth(token),
+    )
+
+    r_after = await client.get(units_url, headers=_auth(token))
+    assert r_after.status_code == 200
+    assert r_after.json()["adoption_id"] is not None
+
+
 # ── TA-2: Import ──────────────────────────────────────────────────────────────
 
 

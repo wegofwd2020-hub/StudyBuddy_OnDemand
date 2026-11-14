@@ -2176,7 +2176,7 @@ async def _assert_school_owns_curriculum(conn, school_id: str, curriculum_id: st
 
 
 async def _assert_school_can_read_curriculum(conn, school_id: str, curriculum_id: str) -> None:
-    """Read access: the school's own fork, or a platform curriculum one of its classrooms holds."""
+    """Read access: the school's own fork, or a platform curriculum it has adopted or a classroom holds."""
     row = await conn.fetchrow(
         "SELECT owner_type, school_id FROM curricula WHERE curriculum_id = $1",
         curriculum_id,
@@ -2190,6 +2190,9 @@ async def _assert_school_can_read_curriculum(conn, school_id: str, curriculum_id
                 SELECT 1 FROM classroom_packages cp
                 JOIN classrooms cl ON cl.classroom_id = cp.classroom_id
                 WHERE cl.school_id = $1 AND cp.curriculum_id = $2
+            ) OR EXISTS (
+                SELECT 1 FROM school_adopted_curricula sac
+                WHERE sac.school_id = $1 AND sac.curriculum_id = $2 AND sac.status = 'active'
             )
             """,
             uuid.UUID(school_id),
@@ -2444,7 +2447,8 @@ async def list_unit_override_status(
 
         adoption_row = await conn.fetchrow(
             "SELECT adoption_id FROM school_adopted_curricula "
-            "WHERE school_id = $1 AND forked_curriculum_id = $2 LIMIT 1",
+            "WHERE school_id = $1 AND (forked_curriculum_id = $2 OR curriculum_id = $2) "
+            "ORDER BY (forked_curriculum_id = $2) DESC LIMIT 1",
             school_id,
             curriculum_id,
         )
