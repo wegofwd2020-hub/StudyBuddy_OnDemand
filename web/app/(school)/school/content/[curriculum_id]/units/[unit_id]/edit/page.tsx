@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSchoolForkId } from "@/lib/hooks/useSchoolForkId";
 import { diffWords } from "diff";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
@@ -1133,12 +1134,14 @@ export default function UnitEditPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const curriculumId = params.curriculum_id as string;
+  const routeCurriculumId = params.curriculum_id as string;
   const unitId = params.unit_id as string;
   const adoptionId = searchParams.get("aid") || "";
 
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
+  const { forkId, isLoading: forkLoading } = useSchoolForkId(schoolId, routeCurriculumId);
+  const curriculumId = forkId ?? "";
   const queryClient = useQueryClient();
 
   const [activeType, setActiveType] = useState<string>("lesson");
@@ -1176,7 +1179,7 @@ export default function UnitEditPage() {
   // 1. List all overrides for this unit (tab availability)
   const {
     data: unitData,
-    isLoading: unitsLoading,
+    isLoading: unitsQueryLoading,
     error: unitsError,
   } = useQuery({
     queryKey: ["unit-status", schoolId, curriculumId],
@@ -1184,6 +1187,7 @@ export default function UnitEditPage() {
     enabled: !!schoolId && !!curriculumId,
     staleTime: 30_000,
   });
+  const unitsLoading = unitsQueryLoading || forkLoading;
 
   const unitMeta = unitData?.units.find((u) => u.unit_id === unitId);
   const overridesByType = Object.fromEntries(
@@ -1401,8 +1405,8 @@ export default function UnitEditPage() {
   // UX-09: recover adoption ID from loaded data when URL param is absent
   const resolvedAdoptionId = adoptionId || unitData?.adoption_id || "";
   const backHref = resolvedAdoptionId
-    ? `/school/content/${curriculumId}?aid=${resolvedAdoptionId}`
-    : `/school/content/${curriculumId}`;
+    ? `/school/content/${routeCurriculumId}?aid=${resolvedAdoptionId}`
+    : `/school/content/${routeCurriculumId}`;
 
   function switchTab(ct: string) {
     if (dirty && !confirm("You have unsaved changes. Discard and switch tab?")) return;
@@ -1466,7 +1470,7 @@ export default function UnitEditPage() {
               corrections live on their own page because they change what
               GRADES a student, which is a different act from editing prose. */}
           <Link
-            href={`/school/content/${curriculumId}/units/${unitId}/answers`}
+            href={`/school/content/${routeCurriculumId}/units/${unitId}/answers`}
             className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50"
           >
             <ShieldCheck className="h-4 w-4" />
