@@ -11,7 +11,7 @@ concurrency:
 jobs:
   e2e:
     name: Playwright — Student Flow (3 critical paths)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     defaults:
