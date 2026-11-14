@@ -259,7 +259,12 @@ function TeacherRow({
             {item.assigned_grades.length > 0 ? (
               item.assigned_grades.map((g) => <GradeChip key={g} grade={g} />)
             ) : (
-              <span className="text-xs text-gray-400 italic">No grades assigned</span>
+              <span
+                title="Not yet assigned to a grade, so they see no students"
+                className="text-xs text-gray-400 italic"
+              >
+                No grade assigned
+              </span>
             )}
           </div>
 
