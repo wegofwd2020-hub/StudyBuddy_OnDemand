@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSchoolForkId } from "@/lib/hooks/useSchoolForkId";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   listUnitOverrideStatus,
@@ -219,16 +220,18 @@ export default function ContentUnitsPage() {
   const [importError, setImportError] = useState<string | null>(null);
   const [openUnitId, setOpenUnitId] = useState<string | null>(null);
 
+  const { forkId, isLoading: forkLoading } = useSchoolForkId(schoolId, curriculumId);
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["unit-status", schoolId, curriculumId],
-    queryFn: () => listUnitOverrideStatus(schoolId, curriculumId),
-    enabled: !!schoolId && !!curriculumId,
+    queryKey: ["unit-status", schoolId, forkId],
+    queryFn: () => listUnitOverrideStatus(schoolId, forkId ?? ""),
+    enabled: !!schoolId && !!forkId,
     staleTime: 30_000,
   });
 
   function handleImported() {
     setImportError(null);
-    queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, curriculumId] });
+    queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, forkId] });
   }
 
   const units = data?.units ?? [];
@@ -288,7 +291,7 @@ export default function ContentUnitsPage() {
       )}
 
       {/* Body */}
-      {isLoading ? (
+      {isLoading || forkLoading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} className="h-12 rounded-lg" />
