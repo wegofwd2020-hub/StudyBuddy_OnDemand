@@ -47,12 +47,14 @@ type ErrorKey =
   | "error_rate_limited"
   | "error_pending"
   | "error_already_active"
+  | "error_email_in_use"
   | "error_generic";
 
 function resolveErrorKey(status: number | undefined, code: string | undefined): ErrorKey {
   if (status === 429) return "error_rate_limited";
   if (status === 409 && code === "verification_pending") return "error_pending";
   if (status === 409 && code === "demo_already_active") return "error_already_active";
+  if (status === 409 && code === "email_in_use") return "error_email_in_use";
   return "error_generic";
 }
 
@@ -63,6 +65,8 @@ const ERROR_COPY: Record<ErrorKey, string> = {
     "A verification email was already sent to this address. Please check your inbox.",
   error_already_active:
     "A test run for this email is already active. Please check your inbox for the credentials.",
+  error_email_in_use:
+    "This email already has a StudyBuddy account. Sign in with it, or use a different address.",
   error_generic: "Something went wrong. Please try again.",
 };
 
