@@ -2447,7 +2447,8 @@ async def list_unit_override_status(
 
         adoption_row = await conn.fetchrow(
             "SELECT adoption_id FROM school_adopted_curricula "
-            "WHERE school_id = $1 AND forked_curriculum_id = $2 LIMIT 1",
+            "WHERE school_id = $1 AND (forked_curriculum_id = $2 OR curriculum_id = $2) "
+            "ORDER BY (forked_curriculum_id = $2) DESC LIMIT 1",
             school_id,
             curriculum_id,
         )
