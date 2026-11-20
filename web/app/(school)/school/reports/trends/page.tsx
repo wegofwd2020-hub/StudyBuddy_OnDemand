@@ -155,7 +155,7 @@ export default function TrendsReportPage() {
                         "Week",
                         "Active",
                         "Lessons",
-                        "Quizzes",
+                        "Quiz attempts",
                         "Avg score",
                         "Pass rate",
                       ].map((h) => (
