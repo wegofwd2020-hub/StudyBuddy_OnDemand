@@ -69,7 +69,7 @@ export const TRENDS_STRINGS = {
   colWeek: "Week",
   colActive: "Active",
   colLessons: "Lessons",
-  colQuizzes: "Quizzes",
+  colQuizzes: "Quiz attempts",
   colAvgScore: "Avg score",
   colPassRate: "Pass rate",
   // Empty state
