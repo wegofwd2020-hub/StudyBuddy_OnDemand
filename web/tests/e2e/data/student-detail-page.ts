@@ -39,7 +39,7 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
   overall_avg_score_pct: 84.0,
   total_time_spent_s: 7200, // 2h 0m
   strongest_subject: "Science",
-  needs_attention_subject: "Mathematics",
+  needs_attention_subjects: ["Mathematics"],
   per_unit: [
     {
       unit_id: "G8-SCI-001",

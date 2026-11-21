@@ -194,7 +194,7 @@ describe("SCH-08 — Student detail page", () => {
     render(<StudentDetailPage />);
     expect(screen.getByText("Needs attention:")).toBeInTheDocument();
     expect(
-      screen.getByText(MOCK_STUDENT_REPORT.needs_attention_subject!),
+      screen.getByText(MOCK_STUDENT_REPORT.needs_attention_subjects[0]),
     ).toBeInTheDocument();
   });
 

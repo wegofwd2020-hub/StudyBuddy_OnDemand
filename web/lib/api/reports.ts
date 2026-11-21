@@ -224,7 +224,7 @@ export interface StudentReport {
   total_time_spent_s: number;
   per_unit: PerUnitStudentItem[];
   strongest_subject: string | null;
-  needs_attention_subject: string | null;
+  needs_attention_subjects: string[];
 }
 
 export async function getStudentReport(
