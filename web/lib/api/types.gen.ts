@@ -3758,6 +3758,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/enrolment/resend-invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend Enrolment Invite Endpoint
+         * @description Email a pending roster student the invite to create their account (school_admin only).
+         */
+        post: operations["resend_enrolment_invite_endpoint_api_v1_schools__school_id__enrolment_resend_invite_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/school/enrol/confirm": {
         parameters: {
             query?: never;
@@ -9659,6 +9679,14 @@ export interface components {
              * @default []
              */
             grades: number[];
+        };
+        /** ResendInviteRequest */
+        ResendInviteRequest: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
         };
         /**
          * ResetPasswordRequest
@@ -17717,6 +17745,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SchoolThemeResponse"];
+                };
+            };
+        };
+    };
+    resend_enrolment_invite_endpoint_api_v1_schools__school_id__enrolment_resend_invite_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResendInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

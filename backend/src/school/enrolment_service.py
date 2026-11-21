@@ -223,6 +223,24 @@ async def get_roster(
 # ── Student linking on first login ────────────────────────────────────────────
 
 
+async def resend_enrolment_invite(conn: asyncpg.Connection, school_id: str, email: str) -> dict:
+    row = await conn.fetchrow(
+        """
+        SELECT se.status, s.name AS school_name
+        FROM school_enrolments se
+        JOIN schools s ON s.school_id = se.school_id
+        WHERE se.school_id = $1 AND se.student_email = $2
+        """,
+        uuid.UUID(school_id),
+        email.strip().lower(),
+    )
+    if row is None:
+        return {"reason": "not_found"}
+    if row["status"] != "pending":
+        return {"reason": "not_pending"}
+    return {"reason": "ok", "school_name": row["school_name"]}
+
+
 async def link_student(
     conn: asyncpg.Connection,
     student_id: str,

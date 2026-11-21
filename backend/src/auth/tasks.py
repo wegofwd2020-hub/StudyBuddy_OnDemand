@@ -1710,6 +1710,21 @@ def send_test_run_verification_email_task(self, email: str, token: str) -> None:
 
 
 @celery_app.task(
+    name="src.auth.tasks.send_enrolment_invite_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_enrolment_invite_email_task(self, email: str, school_name: str) -> None:
+    """Send a roster invite to a pending student. Retries up to 3× on SMTP failure."""
+    from src.email.service import send_enrolment_invite_email
+
+    try:
+        _run_async(send_enrolment_invite_email(email, school_name))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(
     name="src.auth.tasks.send_test_run_credentials_email_task",
     bind=True,
     max_retries=3,

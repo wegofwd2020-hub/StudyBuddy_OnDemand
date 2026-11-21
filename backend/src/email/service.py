@@ -677,6 +677,41 @@ async def send_password_reset_email(to_email: str, name: str, password: str) -> 
     )
 
 
+_ENROL_INVITE_SUBJECT = "StudyBuddy — your school has invited you"
+
+_ENROL_INVITE_TEXT = """\
+Hi,
+
+{school_name} has added you to StudyBuddy.
+
+Create your free account with this email address to start your lessons:
+{signup_url}
+
+Use the same email address your school has on file, so your account links
+to {school_name} automatically.
+"""
+
+_ENROL_INVITE_HTML = """\
+<p>Hi,</p>
+<p><strong>{school_name}</strong> has added you to StudyBuddy.</p>
+<p>Create your free account with this email address to start your lessons:</p>
+<p><a href="{signup_url}">{signup_url}</a></p>
+<p>Use the same email address your school has on file, so your account links
+to {school_name} automatically.</p>
+"""
+
+
+async def send_enrolment_invite_email(to_email: str, school_name: str) -> None:
+    """Invite a pending roster student to create their account."""
+    fmt = {"school_name": school_name, "signup_url": f"{settings.FRONTEND_URL}/signup"}
+    await _send(
+        to_email=to_email,
+        subject=_ENROL_INVITE_SUBJECT,
+        text_body=_ENROL_INVITE_TEXT.format(**fmt),
+        html_body=_ENROL_INVITE_HTML.format(**fmt),
+    )
+
+
 _RESET_LINK_SUBJECT = "StudyBuddy — reset your password"
 
 _RESET_LINK_TEXT = """\

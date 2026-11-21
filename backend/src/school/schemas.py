@@ -131,6 +131,10 @@ class EnrolmentUploadRequest(BaseModel):
     students: list[StudentEnrolmentEntry]
 
 
+class ResendInviteRequest(BaseModel):
+    email: EmailStr
+
+
 class EnrolmentUploadResponse(BaseModel):
     enrolled: int
     already_enrolled: int
