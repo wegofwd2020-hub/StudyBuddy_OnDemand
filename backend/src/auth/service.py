@@ -512,7 +512,7 @@ async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | Non
                 """
                 SELECT teacher_id::text AS user_id, name, email, 'teacher' AS user_type
                 FROM teachers
-                WHERE email = $1 AND auth_provider = 'local'
+                WHERE email = $1 AND auth_provider = 'local' AND account_status <> 'deleted'
                 """,
                 email,
             )
