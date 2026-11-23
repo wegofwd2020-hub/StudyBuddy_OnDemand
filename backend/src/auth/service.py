@@ -409,7 +409,7 @@ async def login_local_user(
             SELECT teacher_id::text AS user_id, name, role, school_id::text, account_status,
                    password_hash, first_login, password_expires_at, 'teacher' AS user_type
             FROM teachers
-            WHERE email = $1 AND auth_provider = 'local'
+            WHERE email = $1 AND auth_provider = 'local' AND account_status <> 'deleted'
             """,
             email,
         )
