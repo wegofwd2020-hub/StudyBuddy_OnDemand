@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 from httpx import AsyncClient
 
-from src.auth.service import hash_password
+from src.auth.service import find_local_user_by_email, hash_password
 
 _PW = "SecureTestPwd1!"
 _KNOWN_TEMP = "KnownTempPwd1!"
@@ -72,3 +72,15 @@ async def test_retired_teacher_does_not_shadow_student_login(client, db_conn):
     r = await client.post("/api/v1/auth/login", json={"email": email, "password": _KNOWN_TEMP})
     assert r.status_code == 200, r.text
     assert r.json()["first_login"] is True, r.json()
+
+
+@pytest.mark.asyncio
+async def test_retired_teacher_does_not_shadow_password_reset_lookup(client, db_conn):
+    school = await _school(client, "_reset_fallthrough")
+    email = f"shadow-{uuid.uuid4().hex[:8]}@example.com"
+    await _provision_student(client, school, email)
+    await _insert_retired_teacher(client, school, email)
+
+    found = await find_local_user_by_email(client._transport.app.state.pool, email)
+    assert found is not None
+    assert found["user_type"] == "student", found
