@@ -398,6 +398,7 @@ async def login_local_user(
       account_status str
       first_login    bool
     """
+    email = email.lower()
     # Acquire a dedicated connection and stamp app.current_school_id='bypass' so
     # that the RLS policy (migration 0028) does not hide any rows.  Login is an
     # unauthenticated endpoint — we need to look up the user before we know their
@@ -505,6 +506,7 @@ async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | Non
     Stamps app.current_school_id='bypass' (pitfall #23) so RLS does not hide the
     row — this is called from the unauthenticated forgot-password endpoint.
     """
+    email = email.lower()
     async with pool.acquire() as conn:
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         try:
