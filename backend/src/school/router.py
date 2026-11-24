@@ -838,11 +838,19 @@ async def _duplicate_email_detail(
                                                 route, revealing nothing about
                                                 the other school
     """
-    owned_here = await conn.fetchval(
-        f"SELECT EXISTS (SELECT 1 FROM {table} WHERE lower(email) = lower($1) AND school_id = $2)",
-        email,
-        uuid.UUID(school_id),
-    )
+    school_uuid = uuid.UUID(school_id)
+    if table == "students":
+        owned_here = await conn.fetchval(
+            "SELECT EXISTS (SELECT 1 FROM students WHERE email = $1 AND school_id = $2)",
+            email,
+            school_uuid,
+        )
+    else:
+        owned_here = await conn.fetchval(
+            "SELECT EXISTS (SELECT 1 FROM teachers WHERE email = $1 AND school_id = $2)",
+            email,
+            school_uuid,
+        )
     if owned_here:
         who = "student" if table == "students" else "teacher"
         return f"That email address is already used by a {who} at your school."

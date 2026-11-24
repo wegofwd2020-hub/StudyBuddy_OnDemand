@@ -409,7 +409,7 @@ async def login_local_user(
             SELECT teacher_id::text AS user_id, name, role, school_id::text, account_status,
                    password_hash, first_login, password_expires_at, 'teacher' AS user_type
             FROM teachers
-            WHERE lower(email) = lower($1) AND auth_provider = 'local' AND account_status <> 'deleted'
+            WHERE email = $1 AND auth_provider = 'local' AND account_status <> 'deleted'
             """,
             email,
         )
@@ -422,7 +422,7 @@ async def login_local_user(
                        password_hash, first_login, password_expires_at,
                        'student' AS user_type
                 FROM students
-                WHERE lower(email) = lower($1) AND auth_provider = 'local'
+                WHERE email = $1 AND auth_provider = 'local'
                 """,
                 email,
             )
@@ -512,7 +512,7 @@ async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | Non
                 """
                 SELECT teacher_id::text AS user_id, name, email, 'teacher' AS user_type
                 FROM teachers
-                WHERE lower(email) = lower($1) AND auth_provider = 'local' AND account_status <> 'deleted'
+                WHERE email = $1 AND auth_provider = 'local' AND account_status <> 'deleted'
                 """,
                 email,
             )
@@ -521,7 +521,7 @@ async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | Non
                     """
                     SELECT student_id::text AS user_id, name, email, 'student' AS user_type
                     FROM students
-                    WHERE lower(email) = lower($1) AND auth_provider = 'local'
+                    WHERE email = $1 AND auth_provider = 'local'
                     """,
                     email,
                 )
