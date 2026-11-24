@@ -11,6 +11,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, field_validator
 
+from src.core.email_address import NormalizedEmail
+
 # ── Request schemas ───────────────────────────────────────────────────────────
 
 
@@ -217,7 +219,7 @@ class AdminLoginResponse(BaseModel):
 class LocalLoginRequest(BaseModel):
     """POST /auth/login — email + password for school-provisioned users."""
 
-    email: EmailStr
+    email: NormalizedEmail
     password: str
 
     @field_validator("password")

@@ -12,6 +12,8 @@ from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from src.core.email_address import NormalizedEmail
+
 
 class SchoolRegisterRequest(BaseModel):
     school_name: str
@@ -58,7 +60,7 @@ class SchoolProfileResponse(BaseModel):
 
 class TeacherInviteRequest(BaseModel):
     name: str
-    email: EmailStr
+    email: NormalizedEmail
 
 
 class TeacherInviteResponse(BaseModel):
@@ -122,7 +124,7 @@ class TeacherCapabilitiesResponse(BaseModel):
 class StudentEnrolmentEntry(BaseModel):
     """One row in a roster upload. Only email is required."""
 
-    email: EmailStr
+    email: NormalizedEmail
     grade: int | None = None
     teacher_id: str | None = None
 
@@ -193,7 +195,7 @@ class ProvisionTeacherRequest(BaseModel):
     """POST /schools/{school_id}/teachers"""
 
     name: str
-    email: EmailStr
+    email: NormalizedEmail
     subject_specialisation: str | None = None
 
 
@@ -209,7 +211,7 @@ class ProvisionStudentRequest(BaseModel):
     """POST /schools/{school_id}/students"""
 
     name: str
-    email: EmailStr
+    email: NormalizedEmail
     grade: int
 
     @field_validator("grade")

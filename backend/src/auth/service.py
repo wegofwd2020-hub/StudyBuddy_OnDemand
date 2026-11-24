@@ -398,6 +398,7 @@ async def login_local_user(
       account_status str
       first_login    bool
     """
+    email = email.lower()
     # Acquire a dedicated connection and stamp app.current_school_id='bypass' so
     # that the RLS policy (migration 0028) does not hide any rows.  Login is an
     # unauthenticated endpoint — we need to look up the user before we know their
@@ -409,7 +410,7 @@ async def login_local_user(
             SELECT teacher_id::text AS user_id, name, role, school_id::text, account_status,
                    password_hash, first_login, password_expires_at, 'teacher' AS user_type
             FROM teachers
-            WHERE lower(email) = lower($1) AND auth_provider = 'local' AND account_status <> 'deleted'
+            WHERE email = $1 AND auth_provider = 'local' AND account_status <> 'deleted'
             """,
             email,
         )
@@ -422,7 +423,7 @@ async def login_local_user(
                        password_hash, first_login, password_expires_at,
                        'student' AS user_type
                 FROM students
-                WHERE lower(email) = lower($1) AND auth_provider = 'local'
+                WHERE email = $1 AND auth_provider = 'local'
                 """,
                 email,
             )
@@ -505,6 +506,7 @@ async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | Non
     Stamps app.current_school_id='bypass' (pitfall #23) so RLS does not hide the
     row — this is called from the unauthenticated forgot-password endpoint.
     """
+    email = email.lower()
     async with pool.acquire() as conn:
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         try:
@@ -512,7 +514,7 @@ async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | Non
                 """
                 SELECT teacher_id::text AS user_id, name, email, 'teacher' AS user_type
                 FROM teachers
-                WHERE lower(email) = lower($1) AND auth_provider = 'local' AND account_status <> 'deleted'
+                WHERE email = $1 AND auth_provider = 'local' AND account_status <> 'deleted'
                 """,
                 email,
             )
@@ -521,7 +523,7 @@ async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | Non
                     """
                     SELECT student_id::text AS user_id, name, email, 'student' AS user_type
                     FROM students
-                    WHERE lower(email) = lower($1) AND auth_provider = 'local'
+                    WHERE email = $1 AND auth_provider = 'local'
                     """,
                     email,
                 )

@@ -314,8 +314,7 @@ async def provision_student(
     roster: one ID per school.
     """
     existing = await conn.fetchrow(
-        "SELECT student_id::text AS student_id, name, email, grade"
-        "  FROM students WHERE lower(email) = lower($1)",
+        "SELECT student_id::text AS student_id, name, email, grade FROM students WHERE email = $1",
         email,
     )
 
@@ -324,8 +323,7 @@ async def provision_student(
         # sees only THIS school's rows — which is exactly the question being
         # asked, and means the check cannot observe another school's roster.
         already_here = await conn.fetchval(
-            "SELECT 1 FROM school_enrolments"
-            " WHERE school_id = $1 AND lower(student_email) = lower($2)",
+            "SELECT 1 FROM school_enrolments WHERE school_id = $1 AND student_email = $2",
             uuid.UUID(school_id),
             email,
         )
