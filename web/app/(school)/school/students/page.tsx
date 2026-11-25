@@ -10,6 +10,7 @@ import {
   listClassrooms,
   getClassroom,
   provisionStudent,
+  assignStudentToClassroom,
   resetStudentPassword,
   type RosterItem,
 } from "@/lib/api/school-admin";
@@ -449,22 +450,45 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
   const [addName, setAddName] = useState("");
   const [addEmail, setAddEmail] = useState("");
   const [addGrade, setAddGrade] = useState<string>("8");
+  const [addClassroomId, setAddClassroomId] = useState<string>("");
   const [addError, setAddError] = useState<string | null>(null);
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
 
+  const { data: allClassrooms } = useQuery({
+    queryKey: ["classrooms", schoolId],
+    queryFn: () => listClassrooms(schoolId),
+    enabled: !!schoolId,
+    staleTime: 60_000,
+  });
+  const activeClassrooms = (allClassrooms ?? []).filter((c) => c.status === "active");
+
   const { mutate: doProvision, isPending: provisioning } = useMutation({
-    mutationFn: () =>
-      provisionStudent(schoolId, {
+    mutationFn: async () => {
+      const student = await provisionStudent(schoolId, {
         name: addName,
         email: addEmail,
         grade: Number(addGrade),
-      }),
-    onSuccess: (res) => {
-      setAddSuccess(res.email);
+      });
+      if (!addClassroomId) return { student, classroomFailed: false };
+      try {
+        await assignStudentToClassroom(schoolId, addClassroomId, student.student_id);
+        return { student, classroomFailed: false };
+      } catch {
+        return { student, classroomFailed: true };
+      }
+    },
+    onSuccess: ({ student, classroomFailed }) => {
+      setAddSuccess(student.email);
       setAddName("");
       setAddEmail("");
       setAddGrade("8");
+      if (classroomFailed) {
+        setAddError(
+          "Student added, but could not be placed in the classroom. Add them from the classroom page.",
+        );
+      }
       qc.invalidateQueries({ queryKey: ["roster", schoolId] });
+      qc.invalidateQueries({ queryKey: ["classrooms", schoolId] });
     },
     onError: (err: unknown) => {
       const resp = (
@@ -690,6 +714,24 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="student_classroom">Classroom (optional)</Label>
+            <select
+              id="student_classroom"
+              value={addClassroomId}
+              onChange={(e) => setAddClassroomId(e.target.value)}
+              className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            >
+              <option value="">No classroom</option>
+              {activeClassrooms.map((c) => (
+                <option key={c.classroom_id} value={c.classroom_id}>
+                  {c.name}
+                  {c.grade !== null ? ` (Grade ${c.grade})` : ""}
+                </option>
+              ))}
+            </select>
           </div>
 
           {addError && <p className="text-sm text-red-600">{addError}</p>}
