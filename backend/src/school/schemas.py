@@ -541,6 +541,7 @@ class AdoptionItem(BaseModel):
     has_overrides: bool
     is_source_archived: bool = False
     archive_reason: str | None = None
+    subject_names: list[str] = []
 
 
 class LibraryResponse(BaseModel):

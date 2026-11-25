@@ -859,6 +859,7 @@ export interface AdoptionItem {
   has_overrides: boolean;
   is_source_archived?: boolean;
   archive_reason?: string | null;
+  subject_names: string[];
 }
 
 export interface LibraryResponse {
