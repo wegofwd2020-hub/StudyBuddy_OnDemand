@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 interface BookSpineProps {
   unitId: string;
   title: string;
+  /** Secondary line under the title (e.g. the subjects a package covers). */
+  subtitle?: string;
   subjectKey: string;
   /** Status icon. When omitted no status icon renders (e.g. adoption spines). */
   status?: UnitStatus;
@@ -25,6 +27,7 @@ interface BookSpineProps {
 export function BookSpine({
   unitId,
   title,
+  subtitle,
   subjectKey,
   status,
   hasLab,
@@ -70,6 +73,14 @@ export function BookSpine({
         >
           {title}
         </span>
+        {subtitle ? (
+          <span
+            className="mt-1 line-clamp-2 text-[11px] leading-tight text-gray-600"
+            aria-hidden="true"
+          >
+            {subtitle}
+          </span>
+        ) : null}
         <span className="mt-auto flex items-center gap-1 pt-2">
           {statusEntry ? (
             <statusEntry.icon
@@ -86,6 +97,7 @@ export function BookSpine({
         </span>
         <span className="sr-only">
           {title}
+          {subtitle ? `, ${subtitle}` : ""}
           {statusEntry ? `, status ${statusEntry.label}` : ""}
           {hasLab ? ", has lab" : ""}
         </span>

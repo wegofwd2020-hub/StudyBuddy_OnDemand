@@ -286,6 +286,9 @@ export default function CatalogPage() {
                       key={pkg.curriculum_id}
                       unitId={pkg.curriculum_id}
                       title={pkg.name}
+                      subtitle={pkg.subjects
+                        .map((s) => s.subject_name ?? s.subject)
+                        .join(", ")}
                       subjectKey={deriveStreamKey(pkg.name)}
                       accentOverride={deriveStreamAccent(pkg.name)}
                       isOpen={openCurriculumId === pkg.curriculum_id}
