@@ -224,6 +224,7 @@ export default function LibraryPage() {
                       key={item.adoption_id}
                       unitId={item.adoption_id}
                       title={item.name}
+                      subtitle={item.subject_names.join(", ")}
                       subjectKey={deriveStreamKey(item.name)}
                       accentOverride={deriveStreamAccent(item.name)}
                       dim={item.is_source_archived || item.status !== "active"}

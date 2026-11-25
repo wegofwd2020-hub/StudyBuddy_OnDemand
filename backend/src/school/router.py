@@ -1779,9 +1779,22 @@ async def list_library(
                     WHERE uco.school_id = $1
                       AND uco.curriculum_id = sac.forked_curriculum_id
                 ) AS has_overrides,
-                al.metadata->>'reason' AS archive_reason
+                al.metadata->>'reason' AS archive_reason,
+                COALESCE(subj.subject_names, '{}') AS subject_names
             FROM school_adopted_curricula sac
             JOIN curricula c ON c.curriculum_id = sac.curriculum_id
+            LEFT JOIN LATERAL (
+                SELECT ARRAY(
+                    SELECT COALESCE(MAX(csv.subject_name), cu.subject)
+                    FROM curriculum_units cu
+                    LEFT JOIN content_subject_versions csv
+                        ON csv.curriculum_id = cu.curriculum_id
+                       AND csv.subject = cu.subject
+                    WHERE cu.curriculum_id = sac.curriculum_id
+                    GROUP BY cu.subject
+                    ORDER BY 1
+                ) AS subject_names
+            ) subj ON true
             LEFT JOIN LATERAL (
                 SELECT metadata
                 FROM audit_log
@@ -1811,6 +1824,7 @@ async def list_library(
             adopted_at=row["adopted_at"].isoformat(),
             has_overrides=row["has_overrides"],
             is_source_archived=row["retention_status"] == "archived",
+            subject_names=list(row["subject_names"]),
             archive_reason=row["archive_reason"],
         )
         for row in rows

@@ -6576,6 +6576,11 @@ export interface components {
             is_source_archived: boolean;
             /** Archive Reason */
             archive_reason?: string | null;
+            /**
+             * Subject Names
+             * @default []
+             */
+            subject_names: string[];
         };
         /** AlertItem */
         AlertItem: {

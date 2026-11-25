@@ -17355,6 +17355,14 @@
               }
             ],
             "title": "Archive Reason"
+          },
+          "subject_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Subject Names",
+            "default": []
           }
         },
         "type": "object",
