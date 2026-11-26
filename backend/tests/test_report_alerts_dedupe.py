@@ -294,3 +294,51 @@ async def test_the_partial_unique_index_exists(client, db_conn):
     assert "acknowledged" in definition and "resolved_at" in definition, (
         f"index must stay partial to open alerts, got: {definition}"
     )
+
+
+# ── Acknowledgement ───────────────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_a_dismissal_is_persisted_and_survives_a_reload(client, db_conn):
+    school = await _register_school(client, "_ack")
+    await _seed_unit(client, "ALERT-ACK-1", "Ethics in Technology")
+    await _raise(client, school["school_id"], "ALERT-ACK-1", 0.0)
+    [row] = await _open_rows(client, school["school_id"], "ALERT-ACK-1")
+    alert_id = str(row["alert_id"])
+
+    r = await client.post(
+        f"/api/v1/reports/school/{school['school_id']}/alerts/{alert_id}/acknowledge",
+        headers=_hdr(school["teacher_id"], school["school_id"]),
+    )
+    assert r.status_code == 200, r.text
+
+    [row] = await _open_rows(client, school["school_id"], "ALERT-ACK-1")
+    assert row["acknowledged"] is True, "dismissal must be stored server-side"
+
+    listed = await client.get(
+        f"/api/v1/reports/school/{school['school_id']}/alerts",
+        headers=_hdr(school["teacher_id"], school["school_id"]),
+    )
+    alerts = listed.json()["alerts"]
+    assert [a["alert_id"] for a in alerts] == [alert_id]
+    assert alerts[0]["acknowledged"] is True
+
+
+@pytest.mark.asyncio
+async def test_a_school_cannot_acknowledge_another_schools_alert(client, db_conn):
+    owner = await _register_school(client, "_ack_owner")
+    other = await _register_school(client, "_ack_other")
+    await _seed_unit(client, "ALERT-ACK-2", "Digital Citizenship")
+    await _raise(client, owner["school_id"], "ALERT-ACK-2", 0.0)
+    [row] = await _open_rows(client, owner["school_id"], "ALERT-ACK-2")
+    alert_id = str(row["alert_id"])
+
+    r = await client.post(
+        f"/api/v1/reports/school/{other['school_id']}/alerts/{alert_id}/acknowledge",
+        headers=_hdr(other["teacher_id"], other["school_id"]),
+    )
+    assert r.status_code == 404, r.text
+
+    [row] = await _open_rows(client, owner["school_id"], "ALERT-ACK-2")
+    assert row["acknowledged"] is False
