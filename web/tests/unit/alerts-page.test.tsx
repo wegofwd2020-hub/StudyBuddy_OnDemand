@@ -37,13 +37,14 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
 }));
 
 const mockUseQuery = vi.fn();
-const mockSetQueryData = vi.fn();
+const mockDismiss = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
     useQuery: vi.fn((opts) => mockUseQuery(opts)),
-    useQueryClient: vi.fn(() => ({ setQueryData: mockSetQueryData })),
+    useQueryClient: vi.fn(() => ({})),
+    useMutation: vi.fn(() => ({ mutate: mockDismiss })),
   };
 });
 
@@ -143,16 +144,18 @@ describe("SCH-19 — Alerts list renders", () => {
 // SCH-20 — Dismissing alert removes it from visible list
 // ---------------------------------------------------------------------------
 
-describe("SCH-20 — Dismiss alert (optimistic update)", () => {
+describe("SCH-20 — Dismiss alert (persisted)", () => {
   beforeEach(() => {
     mockUseQuery.mockReturnValue({ data: MOCK_ALERTS, isLoading: false });
+    mockDismiss.mockClear();
   });
 
-  it("calls setQueryData when Dismiss is clicked", () => {
+  it("sends the acknowledge mutation with the alert id when Dismiss is clicked", () => {
     render(<AlertsPage />);
     const [firstDismiss] = screen.getAllByRole("button", { name: /Dismiss/ });
     fireEvent.click(firstDismiss);
-    expect(mockSetQueryData).toHaveBeenCalledTimes(1);
+    const unread = MOCK_ALERTS.alerts.filter((a) => !a.acknowledged);
+    expect(mockDismiss).toHaveBeenCalledWith(unread[0].alert_id);
   });
 
   it("Dismiss button is present before click", () => {

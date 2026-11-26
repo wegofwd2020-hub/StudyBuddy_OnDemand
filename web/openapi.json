@@ -13728,7 +13728,7 @@
           "reports"
         ],
         "summary": "List Alerts",
-        "description": "Return unacknowledged threshold alerts for the school.",
+        "description": "Return open and acknowledged threshold alerts for the school.",
         "operationId": "list_alerts_api_v1_reports_school__school_id__alerts_get",
         "security": [
           {
@@ -13753,6 +13753,63 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AlertListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/school/{school_id}/alerts/{alert_id}/acknowledge": {
+      "post": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Acknowledge Alert Endpoint",
+        "description": "Persist a dismissal so the alert stays gone after reload or re-login.",
+        "operationId": "acknowledge_alert_endpoint_api_v1_reports_school__school_id__alerts__alert_id__acknowledge_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Alert Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertAcknowledgeResponse"
                 }
               }
             }
@@ -17380,6 +17437,24 @@
         ],
         "title": "AdoptionItem",
         "description": "One row returned from GET /schools/{school_id}/library"
+      },
+      "AlertAcknowledgeResponse": {
+        "properties": {
+          "alert_id": {
+            "type": "string",
+            "title": "Alert Id"
+          },
+          "acknowledged": {
+            "type": "boolean",
+            "title": "Acknowledged"
+          }
+        },
+        "type": "object",
+        "required": [
+          "alert_id",
+          "acknowledged"
+        ],
+        "title": "AlertAcknowledgeResponse"
       },
       "AlertItem": {
         "properties": {

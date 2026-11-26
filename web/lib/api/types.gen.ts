@@ -5136,11 +5136,31 @@ export interface paths {
         };
         /**
          * List Alerts
-         * @description Return unacknowledged threshold alerts for the school.
+         * @description Return open and acknowledged threshold alerts for the school.
          */
         get: operations["list_alerts_api_v1_reports_school__school_id__alerts_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/school/{school_id}/alerts/{alert_id}/acknowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Acknowledge Alert Endpoint
+         * @description Persist a dismissal so the alert stays gone after reload or re-login.
+         */
+        post: operations["acknowledge_alert_endpoint_api_v1_reports_school__school_id__alerts__alert_id__acknowledge_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6581,6 +6601,13 @@ export interface components {
              * @default []
              */
             subject_names: string[];
+        };
+        /** AlertAcknowledgeResponse */
+        AlertAcknowledgeResponse: {
+            /** Alert Id */
+            alert_id: string;
+            /** Acknowledged */
+            acknowledged: boolean;
         };
         /** AlertItem */
         AlertItem: {
@@ -19802,6 +19829,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AlertListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    acknowledge_alert_endpoint_api_v1_reports_school__school_id__alerts__alert_id__acknowledge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: string;
+                alert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertAcknowledgeResponse"];
                 };
             };
             /** @description Validation Error */
