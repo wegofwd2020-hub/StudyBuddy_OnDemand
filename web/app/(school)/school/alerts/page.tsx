@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getAlerts, getMyGradeScope, type AlertItem } from "@/lib/api/reports";
+import {
+  acknowledgeAlert,
+  getAlerts,
+  getMyGradeScope,
+  type AlertListResponse,
+} from "@/lib/api/reports";
 import { NoGradesNotice } from "@/components/school/ScopeNote";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -102,24 +106,31 @@ export default function AlertsPage() {
     enabled: !!schoolId,
     staleTime: 30_000,
   });
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const alertsKey = ["alerts", schoolId];
+  const { mutate: dismiss } = useMutation({
+    mutationFn: (alertId: string) => acknowledgeAlert(schoolId, alertId),
+    onMutate: async (alertId) => {
+      await qc.cancelQueries({ queryKey: alertsKey });
+      const previous = qc.getQueryData<AlertListResponse>(alertsKey);
+      qc.setQueryData<AlertListResponse>(
+        alertsKey,
+        (old) =>
+          old && {
+            alerts: old.alerts.map((a) =>
+              a.alert_id === alertId ? { ...a, acknowledged: true } : a,
+            ),
+          },
+      );
+      return { previous };
+    },
+    onError: (_err, _alertId, ctx) => {
+      qc.setQueryData(alertsKey, ctx?.previous);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: alertsKey }),
+  });
 
-  function dismiss(alertId: string) {
-    setDismissed((prev) => new Set(prev).add(alertId));
-    qc.setQueryData<{ alerts: AlertItem[] }>(["alerts", schoolId], (old) => {
-      if (!old) return old;
-      return {
-        alerts: old.alerts.map((a) =>
-          a.alert_id === alertId ? { ...a, acknowledged: true } : a,
-        ),
-      };
-    });
-  }
-
-  const visibleAlerts =
-    data?.alerts?.filter((a) => !a.acknowledged && !dismissed.has(a.alert_id)) ?? [];
-  const acknowledgedAlerts =
-    data?.alerts?.filter((a) => a.acknowledged || dismissed.has(a.alert_id)) ?? [];
+  const visibleAlerts = data?.alerts?.filter((a) => !a.acknowledged) ?? [];
+  const acknowledgedAlerts = data?.alerts?.filter((a) => a.acknowledged) ?? [];
 
   return (
     <div className="max-w-3xl space-y-6 p-6">

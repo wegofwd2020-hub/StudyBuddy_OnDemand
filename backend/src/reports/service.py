@@ -1907,7 +1907,10 @@ async def get_alerts(
     school_id: str,
     allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Return unacknowledged alerts, scoped to the caller's grades (#647).
+    """Return open and acknowledged alerts, scoped to the caller's grades (#647).
+
+    Acknowledged rows are included so the inbox can show dismissed alerts after a
+    reload; callers that count open alerts must filter on `acknowledged`.
 
     Alerts were filtered on school alone, so a Grade-8 teacher's landing page
     listed pass-rate breaches for Grades 5, 10 and 11. Narrower than the #576
@@ -1992,7 +1995,6 @@ async def get_alerts(
                    AND st.student_id = (a.details->>'student_id')::uuid) AS student_name
         FROM report_alerts a
         WHERE a.school_id = $1
-          AND NOT a.acknowledged
           -- Alerts whose breach has since cleared are withdrawn by the evaluator
           -- (migration 0066) rather than lingering until a human dismisses them.
           AND a.resolved_at IS NULL
@@ -2021,6 +2023,24 @@ async def get_alerts(
             for r in rows
         ]
     }
+
+
+async def acknowledge_alert(
+    conn: asyncpg.Connection,
+    school_id: str,
+    alert_id: str,
+    allowed_grades: list[int] | None = None,
+) -> bool:
+    """Persist a person's dismissal. False when the alert is not visible to the caller."""
+    visible = await get_alerts(conn, school_id, allowed_grades)
+    if not any(a["alert_id"] == alert_id for a in visible["alerts"]):
+        return False
+    await conn.execute(
+        "UPDATE report_alerts SET acknowledged = TRUE WHERE alert_id = $1 AND school_id = $2",
+        uuid.UUID(alert_id),
+        uuid.UUID(school_id),
+    )
+    return True
 
 
 # ── Alert lifecycle ───────────────────────────────────────────────────────────

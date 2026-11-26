@@ -335,6 +335,11 @@ class AlertListResponse(BaseModel):
     alerts: list[AlertItem]
 
 
+class AlertAcknowledgeResponse(BaseModel):
+    alert_id: str
+    acknowledged: bool
+
+
 class AlertSettings(BaseModel):
     # `score_drop_threshold` and `feedback_count_threshold` were here from
     # migration 0010 and nothing ever read them (#735). Removed rather than

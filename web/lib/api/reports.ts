@@ -409,6 +409,10 @@ export async function getAlerts(schoolId: string): Promise<AlertListResponse> {
   return res.data;
 }
 
+export async function acknowledgeAlert(schoolId: string, alertId: string): Promise<void> {
+  await schoolApi.post(`/reports/school/${schoolId}/alerts/${alertId}/acknowledge`);
+}
+
 // ── Alert Settings ────────────────────────────────────────────────────────────
 
 export interface AlertSettings {

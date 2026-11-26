@@ -33,6 +33,7 @@ from src.core.db import get_db
 from src.core.grade_scope import grade_filter, permitted_grades
 from src.core.redis_client import get_redis
 from src.reports.schemas import (
+    AlertAcknowledgeResponse,
     AlertListResponse,
     AlertSettings,
     AlertSettingsResponse,
@@ -50,6 +51,7 @@ from src.reports.schemas import (
     UnitReport,
 )
 from src.reports.service import (
+    acknowledge_alert,
     get_alert_settings,
     get_alerts,
     get_at_risk_students,
@@ -559,7 +561,7 @@ async def list_alerts(
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
 ) -> AlertListResponse:
-    """Return unacknowledged threshold alerts for the school."""
+    """Return open and acknowledged threshold alerts for the school."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
         # Scoped to the caller's grades (#647): alerts filtered on school
@@ -568,6 +570,29 @@ async def list_alerts(
         grades = await _grade_filter(conn, teacher, school_id)
         result = await get_alerts(conn, school_id, grades)
     return AlertListResponse(**result)
+
+
+@router.post(
+    "/reports/school/{school_id}/alerts/{alert_id}/acknowledge",
+    response_model=AlertAcknowledgeResponse,
+)
+async def acknowledge_alert_endpoint(
+    school_id: str,
+    alert_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> AlertAcknowledgeResponse:
+    """Persist a dismissal so the alert stays gone after reload or re-login."""
+    _check_school(teacher, school_id, request)
+    async with get_db(request) as conn:
+        grades = await _grade_filter(conn, teacher, school_id)
+        found = await acknowledge_alert(conn, school_id, alert_id, grades)
+    if not found:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "not_found", "detail": "Alert not found."},
+        )
+    return AlertAcknowledgeResponse(alert_id=alert_id, acknowledged=True)
 
 
 @router.get("/reports/school/{school_id}/alerts/settings", response_model=AlertSettingsResponse)
