@@ -885,9 +885,7 @@ async def list_grade_streams(
         """,
         grade,
     )
-    streams = [
-        {**dict(r), "selectable": True, "reason": None} for r in rows
-    ]
+    streams = [{**dict(r), "selectable": True, "reason": None} for r in rows]
     if classroom_id is None:
         return streams
 
@@ -963,9 +961,7 @@ async def provision_student_placed(
                     )
                 except OverlappingPackageError as exc:
                     raise PlacementConflictError(str(exc)) from exc
-            await assign_student_to_classroom(
-                conn, school_id, classroom_id, result["student_id"]
-            )
+            await assign_student_to_classroom(conn, school_id, classroom_id, result["student_id"])
     return result
 
 
