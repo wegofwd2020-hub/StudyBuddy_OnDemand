@@ -46,6 +46,8 @@ from src.school.schemas import (
     ApproveRequest,
     AssignPackageRequest,
     AssignStudentRequest,
+    BulkPlacementRequest,
+    BulkPlacementResponse,
     BulkReassignRequest,
     BulkReassignResponse,
     CapabilityGrantRequest,
@@ -122,6 +124,7 @@ from src.school.service import (
     list_classrooms,
     list_definitions,
     list_grade_streams,
+    place_students_bulk,
     promote_to_school_admin,
     provision_student_placed,
     provision_teacher,
@@ -540,6 +543,64 @@ async def set_student_assignment_endpoint(
                 },
             )
     return StudentAssignmentResponse(**row)
+
+
+@router.post(
+    "/schools/{school_id}/students/placement",
+    response_model=BulkPlacementResponse,
+)
+async def place_students_bulk_endpoint(
+    school_id: str,
+    body: BulkPlacementRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> BulkPlacementResponse:
+    """Place enrolled students in a classroom, setting grade, stream and teacher (school_admin only)."""
+    _require_school_admin(teacher, school_id, request)
+    async with get_db(request) as conn:
+        try:
+            results = await place_students_bulk(
+                conn,
+                school_id,
+                body.student_ids,
+                body.grade,
+                body.classroom_id,
+                body.stream_code,
+                teacher["teacher_id"],
+            )
+        except PlacementConflictError as exc:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "placement_conflict",
+                    "detail": exc.reason,
+                    "correlation_id": _cid(request),
+                },
+            )
+        except InvalidStreamError:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "invalid_stream",
+                    "detail": "That stream is not available for this grade.",
+                    "correlation_id": _cid(request),
+                },
+            )
+        except ClassroomNotFoundError:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "Classroom not found for this school.",
+                    "correlation_id": _cid(request),
+                },
+            )
+    placed = sum(1 for r in results if r["status"] == "placed")
+    return BulkPlacementResponse(
+        results=results,
+        placed=placed,
+        failed=len(results) - placed,
+    )
 
 
 @router.post(
