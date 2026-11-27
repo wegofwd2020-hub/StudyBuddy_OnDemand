@@ -322,6 +322,9 @@ export interface ProvisionStudentRequest {
   email: string;
   /** 1–12 */
   grade: number;
+  /** Required when stream_code is set. */
+  classroom_id?: string | null;
+  stream_code?: string | null;
 }
 
 export interface ProvisionedStudent {
@@ -332,9 +335,23 @@ export interface ProvisionedStudent {
   grade: number;
 }
 
+export interface GradeStreamOption {
+  stream_code: string;
+  display_name: string;
+  curriculum_id: string;
+  selectable: boolean;
+  reason: string | null;
+}
+
+export interface GradeStreamsResponse {
+  streams: GradeStreamOption[];
+}
+
 /**
  * Create a student with a system-generated default password.
  * The backend emails credentials to the student. Sets first_login=true.
+ * When stream_code and classroom_id are given, the student is placed in the
+ * classroom atomically; a refused placement creates no student.
  * Requires school_admin role.
  */
 export async function provisionStudent(
@@ -345,6 +362,21 @@ export async function provisionStudent(
     `/schools/${schoolId}/students`,
     body,
   );
+  return res.data;
+}
+
+/**
+ * Streams available for a grade. Pass classroomId to get selectability for
+ * that classroom; each option carries a reason when it cannot be chosen.
+ */
+export async function listGradeStreams(
+  schoolId: string,
+  grade: number,
+  classroomId?: string,
+): Promise<GradeStreamsResponse> {
+  const res = await schoolApi.get<GradeStreamsResponse>(`/schools/${schoolId}/streams`, {
+    params: { grade, ...(classroomId ? { classroom_id: classroomId } : {}) },
+  });
   return res.data;
 }
 

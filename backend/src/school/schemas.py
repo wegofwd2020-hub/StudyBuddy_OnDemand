@@ -10,7 +10,7 @@ import re
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from src.core.email_address import NormalizedEmail
 
@@ -213,6 +213,8 @@ class ProvisionStudentRequest(BaseModel):
     name: str
     email: NormalizedEmail
     grade: int
+    classroom_id: str | None = None
+    stream_code: str | None = None
 
     @field_validator("grade")
     @classmethod
@@ -220,6 +222,24 @@ class ProvisionStudentRequest(BaseModel):
         if not (1 <= v <= 12):
             raise ValueError("grade must be between 1 and 12")
         return v
+
+    @model_validator(mode="after")
+    def stream_needs_classroom(self) -> ProvisionStudentRequest:
+        if self.stream_code is not None and self.classroom_id is None:
+            raise ValueError("a stream requires a classroom")
+        return self
+
+
+class GradeStreamOption(BaseModel):
+    stream_code: str
+    display_name: str
+    curriculum_id: str
+    selectable: bool
+    reason: str | None = None
+
+
+class GradeStreamsResponse(BaseModel):
+    streams: list[GradeStreamOption]
 
 
 class ProvisionStudentResponse(BaseModel):

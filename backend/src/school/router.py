@@ -20,7 +20,7 @@ import uuid
 from typing import Annotated
 
 import asyncpg
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.db import get_db
@@ -66,6 +66,7 @@ from src.school.schemas import (
     EnrolmentUploadRequest,
     EnrolmentUploadResponse,
     GradeScopeResponse,
+    GradeStreamsResponse,
     LibraryResponse,
     OverrideItem,
     PromoteTeacherResponse,
@@ -99,8 +100,11 @@ from src.school.schemas import (
 )
 from src.school.service import (
     AlreadyEnrolledError,
+    ClassroomNotFoundError,
+    InvalidStreamError,
     NotPrimarySchoolError,
     OverlappingPackageError,
+    PlacementConflictError,
     approve_definition,
     assign_package_to_classroom,
     assign_student_to_classroom,
@@ -117,8 +121,9 @@ from src.school.service import (
     list_catalog,
     list_classrooms,
     list_definitions,
+    list_grade_streams,
     promote_to_school_admin,
-    provision_student,
+    provision_student_placed,
     provision_teacher,
     register_school,
     reject_definition,
@@ -945,8 +950,42 @@ async def provision_student_endpoint(
 
     async with get_db(request) as conn:
         try:
-            result = await provision_student(
-                conn, school_id, body.name, str(body.email), body.grade
+            result = await provision_student_placed(
+                conn,
+                school_id,
+                body.name,
+                str(body.email),
+                body.grade,
+                body.classroom_id,
+                body.stream_code,
+                teacher["teacher_id"],
+            )
+        except PlacementConflictError as exc:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "placement_conflict",
+                    "detail": exc.reason,
+                    "correlation_id": _cid(request),
+                },
+            )
+        except InvalidStreamError:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "invalid_stream",
+                    "detail": "That stream is not available for this grade.",
+                    "correlation_id": _cid(request),
+                },
+            )
+        except ClassroomNotFoundError:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "Classroom not found in this school.",
+                    "correlation_id": _cid(request),
+                },
             )
         except AlreadyEnrolledError:
             # Already on THIS roster. Since #572 a student may hold enrolments
@@ -1460,6 +1499,37 @@ async def remove_student_endpoint(
 
 
 # ── Phase C — Curriculum Catalog ──────────────────────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/streams",
+    response_model=GradeStreamsResponse,
+)
+async def list_grade_streams_endpoint(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    grade: int = Query(ge=1, le=12),
+    classroom_id: str | None = None,
+) -> GradeStreamsResponse:
+    """Streams offered at `grade`, marked selectable for the optional classroom."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        try:
+            streams = await list_grade_streams(conn, school_id, grade, classroom_id)
+        except ClassroomNotFoundError:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "Classroom not found in this school.",
+                    "correlation_id": _cid(request),
+                },
+            )
+
+    return GradeStreamsResponse(streams=streams)
 
 
 @router.get(

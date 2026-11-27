@@ -3229,6 +3229,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/streams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Grade Streams Endpoint
+         * @description Streams offered at `grade`, marked selectable for the optional classroom.
+         */
+        get: operations["list_grade_streams_endpoint_api_v1_schools__school_id__streams_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/curricula/catalog": {
         parameters: {
             query?: never;
@@ -8668,6 +8688,24 @@ export interface components {
              */
             grades: number[];
         };
+        /** GradeStreamOption */
+        GradeStreamOption: {
+            /** Stream Code */
+            stream_code: string;
+            /** Display Name */
+            display_name: string;
+            /** Curriculum Id */
+            curriculum_id: string;
+            /** Selectable */
+            selectable: boolean;
+            /** Reason */
+            reason?: string | null;
+        };
+        /** GradeStreamsResponse */
+        GradeStreamsResponse: {
+            /** Streams */
+            streams: components["schemas"]["GradeStreamOption"][];
+        };
         /** GradeSummary */
         GradeSummary: {
             /** Grade */
@@ -9335,6 +9373,10 @@ export interface components {
             email: string;
             /** Grade */
             grade: number;
+            /** Classroom Id */
+            classroom_id?: string | null;
+            /** Stream Code */
+            stream_code?: string | null;
         };
         /** ProvisionStudentResponse */
         ProvisionStudentResponse: {
@@ -16835,6 +16877,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_grade_streams_endpoint_api_v1_schools__school_id__streams_get: {
+        parameters: {
+            query: {
+                grade: number;
+                classroom_id?: string | null;
+            };
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeStreamsResponse"];
+                };
             };
             /** @description Validation Error */
             422: {

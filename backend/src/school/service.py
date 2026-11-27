@@ -843,6 +843,128 @@ async def assign_package_to_classroom(
     return True
 
 
+class PlacementConflictError(Exception):
+    """The classroom cannot serve the requested stream (grade default or another stream)."""
+
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(reason)
+
+
+class InvalidStreamError(Exception):
+    """No platform curriculum exists for this stream at the requested grade."""
+
+
+class ClassroomNotFoundError(Exception):
+    """The classroom does not belong to this school."""
+
+
+async def list_grade_streams(
+    conn: asyncpg.Connection,
+    school_id: str,
+    grade: int,
+    classroom_id: str | None = None,
+) -> list[dict]:
+    """
+    Streams with a platform curriculum at `grade`, each marked selectable for the classroom.
+
+    A classroom serves one stream: if it already holds the grade default (a package
+    with no stream), nothing is selectable; if it holds a stream package, only that
+    stream is. With no packages yet, every stream is selectable.
+    """
+    rows = await conn.fetch(
+        """
+        SELECT c.stream_code, s.display_name, c.curriculum_id
+        FROM curricula c
+        JOIN streams s ON s.code = c.stream_code AND s.is_archived = false
+        WHERE c.owner_type = 'platform'
+          AND c.retention_status <> 'archived'
+          AND c.grade = $1
+          AND c.stream_code IS NOT NULL
+        ORDER BY s.display_name, c.stream_code
+        """,
+        grade,
+    )
+    streams = [{**dict(r), "selectable": True, "reason": None} for r in rows]
+    if classroom_id is None:
+        return streams
+
+    classroom_ok = await conn.fetchval(
+        "SELECT 1 FROM classrooms WHERE classroom_id = $1 AND school_id = $2",
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if not classroom_ok:
+        raise ClassroomNotFoundError(classroom_id)
+
+    held = await conn.fetch(
+        """
+        SELECT c.stream_code, s.display_name
+        FROM classroom_packages cp
+        JOIN curricula c ON c.curriculum_id = cp.curriculum_id
+        LEFT JOIN streams s ON s.code = c.stream_code
+        WHERE cp.classroom_id = $1
+        """,
+        uuid.UUID(classroom_id),
+    )
+    has_default = any(h["stream_code"] is None for h in held)
+    serving = next((h for h in held if h["stream_code"] is not None), None)
+    for stream in streams:
+        if has_default:
+            stream["selectable"] = False
+            stream["reason"] = (
+                "This classroom already has the grade default. Pick a classroom without it."
+            )
+        elif serving is not None and serving["stream_code"] != stream["stream_code"]:
+            stream["selectable"] = False
+            stream["reason"] = (
+                f"This classroom serves {serving['display_name'] or serving['stream_code']}."
+            )
+    return streams
+
+
+async def provision_student_placed(
+    conn: asyncpg.Connection,
+    school_id: str,
+    name: str,
+    email: str,
+    grade: int,
+    classroom_id: str | None,
+    stream_code: str | None,
+    assigned_by: str | None,
+) -> dict:
+    """
+    Provision a student and place them in a classroom (and stream) atomically.
+
+    Any refusal raises before or inside the transaction, so no student row is left
+    behind when the placement is rejected.
+    """
+    async with conn.transaction():
+        curriculum_id: str | None = None
+        if classroom_id is not None:
+            options = await list_grade_streams(conn, school_id, grade, classroom_id)
+            if stream_code is not None:
+                option = next((o for o in options if o["stream_code"] == stream_code), None)
+                if option is None:
+                    raise InvalidStreamError(stream_code)
+                if not option["selectable"]:
+                    raise PlacementConflictError(option["reason"])
+                curriculum_id = option["curriculum_id"]
+
+        result = await provision_student(conn, school_id, name, email, grade)
+
+        if classroom_id is not None:
+            if curriculum_id is not None:
+                try:
+                    await assign_package_to_classroom(
+                        conn, school_id, classroom_id, curriculum_id, assigned_by, 0
+                    )
+                except OverlappingPackageError as exc:
+                    raise PlacementConflictError(str(exc)) from exc
+            await assign_student_to_classroom(conn, school_id, classroom_id, result["student_id"])
+    return result
+
+
 async def remove_package_from_classroom(
     conn: asyncpg.Connection,
     school_id: str,
