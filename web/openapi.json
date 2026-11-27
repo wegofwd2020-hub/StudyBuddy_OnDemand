@@ -8117,6 +8117,81 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/streams": {
+      "get": {
+        "tags": [
+          "school"
+        ],
+        "summary": "List Grade Streams Endpoint",
+        "description": "Streams offered at `grade`, marked selectable for the optional classroom.",
+        "operationId": "list_grade_streams_endpoint_api_v1_schools__school_id__streams_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Grade"
+            }
+          },
+          {
+            "name": "classroom_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Classroom Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeStreamsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/curricula/catalog": {
       "get": {
         "tags": [
@@ -22797,6 +22872,61 @@
         "title": "GradeScopeResponse",
         "description": "Which grades the CALLER may see (#647 follow-up).\n\nScope is a property of the caller, not of any one report, so it is served\nonce here rather than embedded in every list response. The overview report\nstill embeds its own copy: there the caption must be guaranteed to match\nthat specific query.\n\nExists because grade-scoping alerts and classrooms made two empty states\nlie. A teacher with no assignments saw \"No active alerts \u2014 all clear.\" and\n\"No active classrooms yet.\" \u2014 both asserting a fact about the school when\nthe truth was \"you have no scope, and there may be things here you cannot\nsee\". False reassurance is worse than an empty list.\n\n`kind`: \"school\" (unrestricted) | \"grades\". An EMPTY `grades` list is the\nteacher-with-no-assignments case and is exactly what those pages need to\ndistinguish."
       },
+      "GradeStreamOption": {
+        "properties": {
+          "stream_code": {
+            "type": "string",
+            "title": "Stream Code"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          },
+          "selectable": {
+            "type": "boolean",
+            "title": "Selectable"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stream_code",
+          "display_name",
+          "curriculum_id",
+          "selectable"
+        ],
+        "title": "GradeStreamOption"
+      },
+      "GradeStreamsResponse": {
+        "properties": {
+          "streams": {
+            "items": {
+              "$ref": "#/components/schemas/GradeStreamOption"
+            },
+            "type": "array",
+            "title": "Streams"
+          }
+        },
+        "type": "object",
+        "required": [
+          "streams"
+        ],
+        "title": "GradeStreamsResponse"
+      },
       "GradeSummary": {
         "properties": {
           "grade": {
@@ -24445,6 +24575,28 @@
           "grade": {
             "type": "integer",
             "title": "Grade"
+          },
+          "classroom_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classroom Id"
+          },
+          "stream_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream Code"
           }
         },
         "type": "object",
