@@ -2880,6 +2880,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/students/placement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Place Students Bulk Endpoint
+         * @description Place enrolled students in a classroom, setting grade, stream and teacher (school_admin only).
+         */
+        post: operations["place_students_bulk_endpoint_api_v1_schools__school_id__students_placement_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/teachers/{from_teacher_id}/reassign": {
         parameters: {
             query?: never;
@@ -7226,6 +7246,41 @@ export interface components {
             unit_id: string;
             /** Section Id */
             section_id: string;
+        };
+        /**
+         * BulkPlacementRequest
+         * @description POST /schools/{school_id}/students/placement
+         */
+        BulkPlacementRequest: {
+            /** Student Ids */
+            student_ids: string[];
+            /** Grade */
+            grade: number;
+            /** Classroom Id */
+            classroom_id: string;
+            /** Stream Code */
+            stream_code?: string | null;
+        };
+        /** BulkPlacementResponse */
+        BulkPlacementResponse: {
+            /** Results */
+            results: components["schemas"]["BulkPlacementResult"][];
+            /** Placed */
+            placed: number;
+            /** Failed */
+            failed: number;
+        };
+        /** BulkPlacementResult */
+        BulkPlacementResult: {
+            /** Student Id */
+            student_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "placed" | "failed";
+            /** Reason */
+            reason?: string | null;
         };
         /**
          * BulkReassignRequest
@@ -16209,6 +16264,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentAssignmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    place_students_bulk_endpoint_api_v1_schools__school_id__students_placement_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkPlacementRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkPlacementResponse"];
                 };
             };
             /** @description Validation Error */

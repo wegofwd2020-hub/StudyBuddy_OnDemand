@@ -6945,6 +6945,64 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/students/placement": {
+      "post": {
+        "tags": [
+          "school"
+        ],
+        "summary": "Place Students Bulk Endpoint",
+        "description": "Place enrolled students in a classroom, setting grade, stream and teacher (school_admin only).",
+        "operationId": "place_students_bulk_endpoint_api_v1_schools__school_id__students_placement_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPlacementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkPlacementResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}/teachers/{from_teacher_id}/reassign": {
       "post": {
         "tags": [
@@ -19047,6 +19105,107 @@
           "section_id"
         ],
         "title": "Body_upload_visual_api_v1_schools__school_id__visuals_upload_post"
+      },
+      "BulkPlacementRequest": {
+        "properties": {
+          "student_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Student Ids"
+          },
+          "grade": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Grade"
+          },
+          "classroom_id": {
+            "type": "string",
+            "title": "Classroom Id"
+          },
+          "stream_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "student_ids",
+          "grade",
+          "classroom_id"
+        ],
+        "title": "BulkPlacementRequest",
+        "description": "POST /schools/{school_id}/students/placement"
+      },
+      "BulkPlacementResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkPlacementResult"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "placed": {
+            "type": "integer",
+            "title": "Placed"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "placed",
+          "failed"
+        ],
+        "title": "BulkPlacementResponse"
+      },
+      "BulkPlacementResult": {
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "placed",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "student_id",
+          "status"
+        ],
+        "title": "BulkPlacementResult"
       },
       "BulkReassignRequest": {
         "properties": {
