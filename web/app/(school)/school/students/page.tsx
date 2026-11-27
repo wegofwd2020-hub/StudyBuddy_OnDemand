@@ -11,7 +11,9 @@ import {
   getClassroom,
   provisionStudent,
   listGradeStreams,
+  placeStudentsBulk,
   resetStudentPassword,
+  type BulkPlacementResponse,
   type RosterItem,
 } from "@/lib/api/school-admin";
 import { getClassMetrics } from "@/lib/api/reports";
@@ -444,6 +446,13 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
     skipped?: Array<{ email: string; reason: string }>;
   } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [enrolledEmails, setEnrolledEmails] = useState<string[]>([]);
+  const [placeIds, setPlaceIds] = useState<Set<string>>(new Set());
+  const [placeGrade, setPlaceGrade] = useState<string>("8");
+  const [placeClassroomId, setPlaceClassroomId] = useState<string>("");
+  const [placeStreamCode, setPlaceStreamCode] = useState<string>("");
+  const [placeResult, setPlaceResult] = useState<BulkPlacementResponse | null>(null);
+  const [placeError, setPlaceError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   // Add individual student
@@ -560,6 +569,10 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
     try {
       const res = await uploadRoster(schoolId, emails);
       setUploadResult(res);
+      setEnrolledEmails(emails);
+      setPlaceIds(new Set());
+      setPlaceResult(null);
+      setPlaceError(null);
       setEmailInput("");
       await qc.invalidateQueries({ queryKey: ["roster", schoolId] });
     } catch {
@@ -570,6 +583,70 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
   }
 
   const emailCount = parseEmails(emailInput).length;
+
+  const placeable = (roster?.roster ?? []).filter(
+    (r): r is RosterItem & { student_id: string } =>
+      r.student_id !== null && enrolledEmails.includes(r.student_email.toLowerCase()),
+  );
+
+  const { data: placeStreams, isLoading: loadingPlaceStreams } = useQuery({
+    queryKey: ["grade-streams", schoolId, placeGrade, placeClassroomId],
+    queryFn: () =>
+      listGradeStreams(schoolId, Number(placeGrade), placeClassroomId || undefined),
+    enabled: !!schoolId && enrolledEmails.length > 0,
+    staleTime: 60_000,
+  });
+  const placeStreamOptions = placeStreams?.streams ?? [];
+
+  const { mutate: doPlace, isPending: placing } = useMutation({
+    mutationFn: () =>
+      placeStudentsBulk(schoolId, {
+        student_ids: [...placeIds],
+        grade: Number(placeGrade),
+        classroom_id: placeClassroomId,
+        stream_code: placeStreamCode || null,
+      }),
+    onSuccess: (res) => {
+      setPlaceResult(res);
+      setPlaceError(null);
+      setPlaceIds(new Set());
+      qc.invalidateQueries({ queryKey: ["roster", schoolId] });
+      qc.invalidateQueries({ queryKey: ["classrooms", schoolId] });
+    },
+    onError: (err: unknown) => {
+      const resp = (
+        err as { response?: { status?: number; data?: { detail?: unknown } } }
+      )?.response;
+      const raw = resp?.data?.detail;
+      const text =
+        typeof raw === "string" ? raw : (raw as { detail?: unknown } | undefined)?.detail;
+      setPlaceError(
+        typeof text === "string" ? text : "Could not place students. Please try again.",
+      );
+    },
+  });
+
+  function togglePlaceId(id: string) {
+    setPlaceIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllPlace() {
+    setPlaceIds((prev) =>
+      prev.size === placeable.length
+        ? new Set()
+        : new Set(placeable.map((r) => r.student_id)),
+    );
+  }
+
+  const placeStreamSelectable =
+    !placeStreamCode ||
+    placeStreamOptions.find((s) => s.stream_code === placeStreamCode)?.selectable ===
+      true;
 
   return (
     <>
@@ -671,6 +748,149 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
           </Button>
         </CardContent>
       </Card>
+
+      {placeable.length > 0 && (
+        <Card className="border shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Place the students just enrolled</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={placeIds.size === placeable.length}
+                  onChange={toggleAllPlace}
+                  aria-label="Select all enrolled students"
+                />
+                Select all ({placeable.length})
+              </label>
+              <span className="text-xs text-gray-500">{placeIds.size} selected</span>
+            </div>
+
+            <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border p-2 text-sm">
+              {placeable.map((r) => (
+                <li key={r.student_id}>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={placeIds.has(r.student_id)}
+                      onChange={() => togglePlaceId(r.student_id)}
+                      aria-label={`Select ${r.student_email}`}
+                    />
+                    {r.student_email}
+                  </label>
+                </li>
+              ))}
+            </ul>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="place_grade">Grade</Label>
+                <select
+                  id="place_grade"
+                  value={placeGrade}
+                  onChange={(e) => {
+                    setPlaceGrade(e.target.value);
+                    setPlaceStreamCode("");
+                  }}
+                  className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                >
+                  {[5, 6, 7, 8, 9, 10, 11, 12].map((g) => (
+                    <option key={g} value={g}>
+                      Grade {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="place_classroom">Classroom (required)</Label>
+                <select
+                  id="place_classroom"
+                  value={placeClassroomId}
+                  onChange={(e) => {
+                    setPlaceClassroomId(e.target.value);
+                    setPlaceStreamCode("");
+                  }}
+                  className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                >
+                  <option value="">Choose a classroom</option>
+                  {activeClassrooms.map((c) => (
+                    <option key={c.classroom_id} value={c.classroom_id}>
+                      {c.name}
+                      {c.grade !== null ? ` (Grade ${c.grade})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="place_stream">Stream (optional)</Label>
+                <select
+                  id="place_stream"
+                  value={placeStreamCode}
+                  onChange={(e) => setPlaceStreamCode(e.target.value)}
+                  disabled={loadingPlaceStreams || placeStreamOptions.length === 0}
+                  className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                >
+                  <option value="">Default subjects for the grade</option>
+                  {placeStreamOptions.map((s) => (
+                    <option
+                      key={s.stream_code}
+                      value={s.stream_code}
+                      disabled={!s.selectable}
+                    >
+                      {s.display_name}
+                      {!s.selectable && s.reason ? ` — ${s.reason}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {placeError && <p className="text-sm text-red-600">{placeError}</p>}
+            {placeResult && (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+                <span className="font-semibold">{placeResult.placed}</span> placed,{" "}
+                {placeResult.failed} failed.
+                {placeResult.failed > 0 && (
+                  <ul className="mt-2 list-disc pl-5 text-gray-600">
+                    {placeResult.results
+                      .filter((x) => x.status === "failed")
+                      .map((x) => (
+                        <li key={x.student_id}>
+                          {placeable.find((r) => r.student_id === x.student_id)
+                            ?.student_email ?? x.student_id}{" "}
+                          — {x.reason}
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            <Button
+              onClick={() => {
+                setPlaceError(null);
+                setPlaceResult(null);
+                doPlace();
+              }}
+              disabled={
+                placing ||
+                placeIds.size === 0 ||
+                !placeClassroomId ||
+                !placeStreamSelectable
+              }
+              className="gap-2"
+            >
+              {placing
+                ? "Placing…"
+                : `Place ${placeIds.size || ""} student${placeIds.size !== 1 ? "s" : ""}`}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Add individual student */}
       <Card className="border shadow-sm">

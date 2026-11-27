@@ -380,6 +380,41 @@ export async function listGradeStreams(
   return res.data;
 }
 
+export interface BulkPlacementRequest {
+  student_ids: string[];
+  grade: number;
+  classroom_id: string;
+  stream_code?: string | null;
+}
+
+export interface BulkPlacementResult {
+  student_id: string;
+  status: "placed" | "failed";
+  reason: string | null;
+}
+
+export interface BulkPlacementResponse {
+  results: BulkPlacementResult[];
+  placed: number;
+  failed: number;
+}
+
+/**
+ * Place enrolled students into a classroom with a grade, teacher, and optional
+ * stream. Students whose placement is refused come back as failed with a reason.
+ * A stream the classroom cannot take is refused for the whole request (409).
+ */
+export async function placeStudentsBulk(
+  schoolId: string,
+  body: BulkPlacementRequest,
+): Promise<BulkPlacementResponse> {
+  const res = await schoolApi.post<BulkPlacementResponse>(
+    `/schools/${schoolId}/students/placement`,
+    body,
+  );
+  return res.data;
+}
+
 /**
  * Admin-initiated password reset for a teacher.
  * Generates a new default password, emails it, and sets first_login=true.
