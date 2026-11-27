@@ -71,6 +71,14 @@ ALLOWLIST = {
     "MID", "TOTAL", "NONE", "TRUE", "FALSE",
     # Standards-body prefixes — "ISO 3166", "ISO 8601" etc. appear verbatim
     "ISO", "ISO8601", "RFC", "ANSI",
+    # RFC 2119 requirement keywords used in prose
+    "MUST", "SHOULD", "MAY",
+    # Doc and file names, SQL/Redis keywords, lint and rule IDs, generic words
+    "CLAUDE", "AGENTS", "CHANGES", "GLOSSARY", "RUNBOOK", "ENUM", "FORCE", "LEVEL",
+    "ROW", "SECURITY", "CONFLICT", "UPSERT", "TEXT", "JOIN", "INCR", "EXPIRE", "LLEN",
+    "LPUSH", "LEFT", "WITH", "COUNT", "CRITICAL", "DRAFT", "KEY", "PROGRESS", "REFRESH",
+    "STUDENT", "TEACHER", "THIS", "VIDEO", "GRAPHICS", "LOGGING", "BACKUPS", "AUTH", "EOD",
+    "B608", "B904", "E701", "S608",
 }
 
 
