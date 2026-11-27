@@ -10,7 +10,7 @@ import {
   listClassrooms,
   getClassroom,
   provisionStudent,
-  assignStudentToClassroom,
+  listGradeStreams,
   resetStudentPassword,
   type RosterItem,
 } from "@/lib/api/school-admin";
@@ -451,6 +451,7 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
   const [addEmail, setAddEmail] = useState("");
   const [addGrade, setAddGrade] = useState<string>("8");
   const [addClassroomId, setAddClassroomId] = useState<string>("");
+  const [addStreamCode, setAddStreamCode] = useState<string>("");
   const [addError, setAddError] = useState<string | null>(null);
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
 
@@ -462,31 +463,33 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
   });
   const activeClassrooms = (allClassrooms ?? []).filter((c) => c.status === "active");
 
+  const { data: gradeStreams, isLoading: loadingGradeStreams } = useQuery({
+    queryKey: ["grade-streams", schoolId, addGrade, addClassroomId],
+    queryFn: () =>
+      listGradeStreams(schoolId, Number(addGrade), addClassroomId || undefined),
+    enabled: !!schoolId,
+    staleTime: 60_000,
+  });
+  const streamOptions = gradeStreams?.streams ?? [];
+
   const { mutate: doProvision, isPending: provisioning } = useMutation({
     mutationFn: async () => {
       const student = await provisionStudent(schoolId, {
         name: addName,
         email: addEmail,
         grade: Number(addGrade),
+        classroom_id: addClassroomId || null,
+        stream_code: addStreamCode || null,
       });
-      if (!addClassroomId) return { student, classroomFailed: false };
-      try {
-        await assignStudentToClassroom(schoolId, addClassroomId, student.student_id);
-        return { student, classroomFailed: false };
-      } catch {
-        return { student, classroomFailed: true };
-      }
+      return { student };
     },
-    onSuccess: ({ student, classroomFailed }) => {
+    onSuccess: ({ student }) => {
       setAddSuccess(student.email);
       setAddName("");
       setAddEmail("");
       setAddGrade("8");
-      if (classroomFailed) {
-        setAddError(
-          "Student added, but could not be placed in the classroom. Add them from the classroom page.",
-        );
-      }
+      setAddClassroomId("");
+      setAddStreamCode("");
       qc.invalidateQueries({ queryKey: ["roster", schoolId] });
       qc.invalidateQueries({ queryKey: ["classrooms", schoolId] });
     },
@@ -498,15 +501,17 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
       if (status === 409) {
         // Prefer the server's explanation — it distinguishes "already on your
         // roster" from "registered at another school" and names the contact
-        // route (#572). Falling back only if the API sent nothing usable.
-        {
-          const serverDetail = (resp?.data as { detail?: unknown } | undefined)?.detail;
-          setAddError(
-            typeof serverDetail === "string"
-              ? serverDetail
-              : "That email address is already registered. Try a different address.",
-          );
-        }
+        // route (#572). Placement conflicts nest the text under detail.detail.
+        const rawDetail = (resp?.data as { detail?: unknown } | undefined)?.detail;
+        const serverDetail =
+          typeof rawDetail === "string"
+            ? rawDetail
+            : (rawDetail as { detail?: unknown } | undefined)?.detail;
+        setAddError(
+          typeof serverDetail === "string"
+            ? serverDetail
+            : "That email address is already registered. Try a different address.",
+        );
       } else if (status === 422) {
         // FastAPI returns detail: [{ loc: ["body", <field>], msg }]. Surface a
         // message for the field that actually failed rather than always blaming grade.
@@ -704,7 +709,10 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
               <select
                 id="student_grade"
                 value={addGrade}
-                onChange={(e) => setAddGrade(e.target.value)}
+                onChange={(e) => {
+                  setAddGrade(e.target.value);
+                  setAddStreamCode("");
+                }}
                 className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 {[5, 6, 7, 8, 9, 10, 11, 12].map((g) => (
@@ -717,7 +725,43 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="student_classroom">Classroom (optional)</Label>
+            <Label htmlFor="student_stream">Stream (optional)</Label>
+            <select
+              id="student_stream"
+              value={addStreamCode}
+              onChange={(e) => setAddStreamCode(e.target.value)}
+              disabled={loadingGradeStreams || streamOptions.length === 0}
+              className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
+            >
+              <option value="">
+                {streamOptions.length === 0 && !loadingGradeStreams
+                  ? "No streams for this grade"
+                  : "Default subjects for the grade"}
+              </option>
+              {streamOptions.map((s) => (
+                <option
+                  key={s.stream_code}
+                  value={s.stream_code}
+                  disabled={!s.selectable}
+                >
+                  {s.display_name}
+                  {!s.selectable && s.reason ? ` — ${s.reason}` : ""}
+                </option>
+              ))}
+            </select>
+            {addStreamCode && !addClassroomId && (
+              <p className="text-xs text-amber-700">
+                Choose a classroom to place this stream.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="student_classroom">
+              {addStreamCode
+                ? "Classroom (required for a stream)"
+                : "Classroom (optional)"}
+            </Label>
             <select
               id="student_classroom"
               value={addClassroomId}
@@ -750,7 +794,15 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
               setAddSuccess(null);
               doProvision();
             }}
-            disabled={provisioning || !addName || !addEmail}
+            disabled={
+              provisioning ||
+              !addName ||
+              !addEmail ||
+              (!!addStreamCode &&
+                (!addClassroomId ||
+                  !streamOptions.find((s) => s.stream_code === addStreamCode)
+                    ?.selectable))
+            }
             className="gap-2"
           >
             {provisioning ? "Adding…" : "Add student"}
