@@ -242,6 +242,27 @@ class GradeStreamsResponse(BaseModel):
     streams: list[GradeStreamOption]
 
 
+class BulkPlacementRequest(BaseModel):
+    """POST /schools/{school_id}/students/placement"""
+
+    student_ids: list[str] = Field(min_length=1, max_length=500)
+    grade: int = Field(ge=1, le=12)
+    classroom_id: str
+    stream_code: str | None = None
+
+
+class BulkPlacementResult(BaseModel):
+    student_id: str
+    status: Literal["placed", "failed"]
+    reason: str | None = None
+
+
+class BulkPlacementResponse(BaseModel):
+    results: list[BulkPlacementResult]
+    placed: int
+    failed: int
+
+
 class ProvisionStudentResponse(BaseModel):
     student_id: str
     school_id: str

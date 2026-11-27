@@ -28,6 +28,7 @@ from src.auth.service import (
     hash_password,
     temp_password_expiry,
 )
+from src.school.enrolment_service import assign_student
 from src.school.localization_service import (
     get_or_create_school_localization,
     get_school_localization,
@@ -963,6 +964,64 @@ async def provision_student_placed(
                     raise PlacementConflictError(str(exc)) from exc
             await assign_student_to_classroom(conn, school_id, classroom_id, result["student_id"])
     return result
+
+
+async def place_students_bulk(
+    conn: asyncpg.Connection,
+    school_id: str,
+    student_ids: list[str],
+    grade: int,
+    classroom_id: str,
+    stream_code: str | None,
+    assigned_by: str | None,
+) -> list[dict]:
+    """
+    Set grade, teacher, stream and classroom for enrolled students, one savepoint each.
+
+    The teacher is the classroom's teacher and must be assigned to `grade`. A stream the
+    classroom cannot take refuses the whole request before any student is touched. Each
+    student's placement, including the stream package, runs in its own savepoint, so a
+    failed student leaves nothing behind and the rest still place.
+    """
+    classroom = await conn.fetchrow(
+        """
+        SELECT teacher_id::text AS teacher_id
+        FROM classrooms WHERE classroom_id = $1 AND school_id = $2
+        """,
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if classroom is None:
+        raise ClassroomNotFoundError(classroom_id)
+    teacher_id = classroom["teacher_id"]
+
+    curriculum_id = None
+    if stream_code is not None:
+        options = await list_grade_streams(conn, school_id, grade, classroom_id)
+        option = next((o for o in options if o["stream_code"] == stream_code), None)
+        if option is None:
+            raise InvalidStreamError(stream_code)
+        if not option["selectable"]:
+            raise PlacementConflictError(option["reason"])
+        curriculum_id = option["curriculum_id"]
+
+    results: list[dict] = []
+    for student_id in student_ids:
+        try:
+            async with conn.transaction():
+                if teacher_id is None:
+                    raise ValueError("classroom has no teacher")
+                await assign_student(conn, school_id, student_id, grade, teacher_id, assigned_by)
+                if curriculum_id is not None:
+                    await assign_package_to_classroom(
+                        conn, school_id, classroom_id, curriculum_id, assigned_by, 0
+                    )
+                await assign_student_to_classroom(conn, school_id, classroom_id, student_id)
+        except (ValueError, OverlappingPackageError) as exc:
+            results.append({"student_id": student_id, "status": "failed", "reason": str(exc)})
+        else:
+            results.append({"student_id": student_id, "status": "placed", "reason": None})
+    return results
 
 
 async def remove_package_from_classroom(
